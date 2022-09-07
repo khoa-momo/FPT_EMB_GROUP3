@@ -1,2 +1,4 @@
-hi
-This is github test
+Code base for Group 3.
+Program: Read FAT systems.
+
+#Mỗi người sẽ dùng 1 Branch riêng để code và sẽ merge dần lại sau vào Master nhé. -Khoa  
