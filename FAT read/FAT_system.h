@@ -99,6 +99,8 @@
 #define BOOT_END_BOOT_SEC_BYTE	(0x2U)
 //----------------------------end----------------------------
 
+
+
 //Offset Main Entry In Root Directory
 #define	ENTRY_FILE_NAME				(0X00U)
 #define	ENTRY_FILE_NAME_BYTE 		(0x8U)
@@ -156,7 +158,7 @@ typedef struct Entr_Main_Root{//32 byte
 	char date[2];			//0x18	//Date created or last updated (2B)
 	int first_clus;			//0x1a	//*Start cluster number for file (2B) 
 	long size;				//0x1c	//*File size in Byte	(4B)		
-}Entry_Main;
+}Entr_Main_Root;
 
 
 #endif

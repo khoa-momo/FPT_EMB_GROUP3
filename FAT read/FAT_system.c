@@ -54,16 +54,31 @@ void getBootSector(FILE *fptr, Boot_Sector *Boot){
 	} 
 }
 
-void getRootSector(FILE *fptr, Entr_Main_Root *Root){
+void getRootSector(FILE *fptr, Entr_Main_Root *Root, int rootDirect){
 	int i;
-	//1.FAT: 
-	//0x1a -char
-	Shift_Offset(ENTRY_START_CLU_NUM,0);
+	//Main entry
+	//0x00 -char
+	Shift_Offset(ENTRY_FILE_NAME+rootDirect,0);
+	for(i=0;i<ENTRY_FILE_NAME_BYTE;i++){
+		Root->name[i]=fgetc(fptr);
+	} 
+	//0x08 -char
+	Shift_Offset(ENTRY_FILE_NAME_EXT+rootDirect,0);
+	for(i=0;i<ENTRY_FILE_NAME_EXT_BYTE;i++){
+		Root->ext[i]=fgetc(fptr);
+	} 
+	//0x0b -char
+	Shift_Offset(ENTRY_FILE_ATTR+rootDirect,0);
+	for(i=0;i<ENTRY_FILE_ATTR_BYTE;i++){
+		Root->ext[i]=fgetc(fptr);
+	}  
+	//0x1a -int
+	Shift_Offset(ENTRY_START_CLU_NUM+rootDirect,0);
 	for(i=0;i<ENTRY_START_CLU_NUM_BYTE;i++){
 		Root->first_clus+=(fgetc(fptr)<<(8*i));
 	}
-	//0x1c -char
-	Shift_Offset(ENTRY_SIZE_FILE,0);
+	//0x1c -long
+	Shift_Offset(ENTRY_SIZE_FILE+rootDirect,0);
 	for(i=0;i<ENTRY_SIZE_FILE_BYTE;i++){
 		Root->size+=(fgetc(fptr)<<(8*i));
 	} 
@@ -85,24 +100,40 @@ void displayBoot(Boot_Sector Boot){
 	
 	//printf("%mark:s\n",Boot.mark);
 }
-
-
-void displayRoot(Boot_Sector Boot){  
-	
+ 
+void displayRoot(Entr_Main_Root Root){  
 	//3.Data
 	printf("first_clus:%d\n",Root.first_clus);
 	printf("size:%d\n",Root.size);
 	
 	//printf("%mark:s\n",Boot.mark);
 }
-
-
-
-void findRootDirectory(Boot_Sector Boot){
+  
+int findRootDirectory(Boot_Sector Boot){
 	int RootDirectory = (Boot.num_FAT * Boot.sec_per_FAT) + Boot.resv_sec_cnt;
 	int RootDirectoryStart = RootDirectory * 512;
-	printf("\RootDirectory: %x\n",RootDirectory);
+	printf("\nRootDirectory: %x\n",RootDirectory);
 	printf("RootDirectoryStart: %x\n",RootDirectoryStart);
-}
+	
+//	int RootBlock = (Boot.root_entr_cnt*32)/512; 
+//	printf("\RootBlock: %d\n",RootBlock);
+//	int ClusStart = RootDirectory+RootBlock-2;
+	
+	return (RootDirectoryStart+32);
+} 
+
+void findClusStart(Boot_Sector Boot, Entr_Main_Root Root){
+	int RootDirectory = (Boot.num_FAT * Boot.sec_per_FAT) + Boot.resv_sec_cnt; 
+	int RootBlock = (Boot.root_entr_cnt*32)/512; 
+	printf("\RootBlock: %d\n",RootBlock);
+	int ClusStart = RootDirectory+RootBlock-2;
+	
+	printf("ClusStart: %x\n",ClusStart);
+	int data = Root.first_clus + ClusStart;
+	printf("data: %x\n",data*0x200);
+//	printf("return FAT: %x\n",(Root.first_clus*2)/0x200);
+//	return data;
+} 
+
 
 #endif
