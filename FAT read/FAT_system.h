@@ -4,19 +4,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdint.h>
-
-
-//Offset area boot sector
-//BOOTSTRAP - 3 BYTE
-#define BOOT_BOOTSP				(0x00U)
-#define BOOT_BOOTSP_BYTE		(0x3U) 
-//Optional manufacturer description - 8 BYTE
-#define BOOT_OEM_NAME			(0x03U)
-#define BOOT_OEM_NAME_BYTE		(0x8U)
-
  
-//----------------------------------------------------------------------
-
+//------------------------Important Boot Feature------------------------
 //File System Identifier FAT_TYPE - 8 BYTE
 #define BOOT_FAT_TYPE			(0x36U)
 #define BOOT_FAT_TYPE_BYTE		(0x8U)
@@ -49,6 +38,14 @@
 
 
 //----------------------------------------------------------------------
+//Offset area boot sector
+//BOOTSTRAP - 3 BYTE
+#define BOOT_BOOTSP				(0x00U)
+#define BOOT_BOOTSP_BYTE		(0x3U) 
+//Optional manufacturer description - 8 BYTE
+#define BOOT_OEM_NAME			(0x03U)
+#define BOOT_OEM_NAME_BYTE		(0x8U)
+
 //Total number of sector		- 2 BYTE
 #define BOOT_SEC_VOL			(0x13U)
 #define BOOT_SEC_VOL_BYTE		(0x2U)
@@ -88,7 +85,6 @@
 //Volume label					- 11 BYTE
 #define BOOT_VOL_LABEL			(0x2bU)
 #define BOOT_VOL_LABEL_BYTE		(0xbU)
-
  
 //Remainder of bootstrap.		- 448 BYTE
 #define BOOT_REMD_BOOTSP		(0x3eU)
@@ -99,8 +95,7 @@
 #define BOOT_END_BOOT_SEC_BYTE	(0x2U)
 //----------------------------end----------------------------
 
-
-
+//-------------------Important Root Feature-------------------
 //Offset Main Entry In Root Directory
 #define	ENTRY_FILE_NAME				(0X00U)
 #define	ENTRY_FILE_NAME_BYTE 		(0x8U)
@@ -126,10 +121,8 @@
 #define	ENTRY_SIZE_FILE				(0x1cU)
 #define	ENTRY_SIZE_FILE_BYTE		(0x4U)
 
-
 //shift to offset
 #define Shift_Offset(x,y)		fseek(fptr,x,y)	
-
 
 typedef struct Boot_Sector{
 	//1.Fat: Fat_Type; no_of_FAT
