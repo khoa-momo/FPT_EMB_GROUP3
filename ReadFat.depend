@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1662550573 source:c:\users\h\desktop\mock1\readfat\main.c
+	"READFAT.h"
+
+1662543148 c:\users\h\desktop\mock1\readfat\readfat.h
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+
+1662544554 source:c:\users\h\desktop\mock1\readfat\readfat.c
+	"READFAT.h"
+
