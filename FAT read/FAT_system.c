@@ -125,12 +125,12 @@ int findRootDirectory(Boot_Sector Boot){
 void findClusStart(Boot_Sector Boot, Entr_Main_Root Root){
 	int RootDirectory = (Boot.num_FAT * Boot.sec_per_FAT) + Boot.resv_sec_cnt; 
 	int RootBlock = (Boot.root_entr_cnt*32)/512; 
-	printf("\RootBlock: %d\n",RootBlock);
+	printf("\nREC:%d; RootBlock: %d\n",Boot.root_entr_cnt, RootBlock);
 	int ClusStart = RootDirectory+RootBlock-2;
 	
-	printf("ClusStart: %x\n",ClusStart);
-	int data = Root.first_clus + ClusStart;
-	printf("data: %x\n",data*0x200);
+	printf("ClusStart: %d\n",ClusStart);//31
+	int data = Root.first_clus + ClusStart;//3
+	printf("data:%d; data:%d-%x\n",data,data*0x200,data*0x200);
 //	printf("return FAT: %x\n",(Root.first_clus*2)/0x200);
 //	return data;
 } 
