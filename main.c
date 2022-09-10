@@ -1,25 +1,28 @@
 #include"FAT_system.h"
-
+//#include"FAT_system.c"
 
 int main()
 {
-	FILE*fptr1=fopen("floppy_2.img","r");
+	fp=fopen("floppy_2.img","r");
 	char arr[100]="doc.txt";
-	FILE*fptr2=fopen(arr,"w");	
-	Boot_Sector Boot={0};
+	FILE*fp2=fopen(arr,"w");	
 	
 	
-//	int i,temp;
-//	for(i=0;i<512;i++)
-//	{
-//		printf("%c",fgetc(fptr1));
-//	}
+	
+	int i;
+	Shift_Offset(0x2600);
+	for(i=0;i<512;i++)
+	{
+		printf("%c",fgetc(fp));
+	}
 
-	getBootSector(fptr1,&Boot);
-	displayBoot(Boot);
+	Boot_Sector *Boot=readBootSector();
+	displayBoot(*Boot);
 	
+	readData();
+ 
 	
-	fclose(fptr2);
-	fclose(fptr1);
+	fclose(fp2);
+	//fclose(fp);
 	return 0;
 }
