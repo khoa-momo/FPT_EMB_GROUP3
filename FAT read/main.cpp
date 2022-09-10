@@ -1,5 +1,5 @@
 #include"FAT_system.h"
-#include"FAT_system.c"
+#include"FAT_system.cpp"
 
 int main(){
 	FILE*fptr1=fopen("floppy.img","r");
@@ -10,8 +10,12 @@ int main(){
 	displayBoot(Boot);
 	
 	//Find Root Directory
-	int RootDirectoryStart = findRootDirectory(Boot);
-	printf("\nrootDirect: %x\n",RootDirectoryStart);
+	int RootDirectoryStart = findRootDirectory(Boot);//2600
+//	printf("\nrootDirect: %x\n",RootDirectoryStart);
+	
+//	struct Entr_Main_Root[5];
+//	for(int i=0; i<5; i++){
+//	}
 	
 	
 	//2.

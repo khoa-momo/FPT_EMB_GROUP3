@@ -1,8 +1,7 @@
 #include "FAT.h"
 ///////Read N Byte From Offset
-int ReadnByte(int n,int offset,FILE *fp)
-{  
-    int *buff=(int *)malloc(n*sizeof(int));
+int ReadnByte(int n,int offset,FILE *fp){  
+    int *buff = (int *)malloc(n*sizeof(int));
     fseek(fp,offset,SEEK_SET);
     for(int i=0;i<n;i++)
     {
@@ -11,13 +10,13 @@ int ReadnByte(int n,int offset,FILE *fp)
     int c=buff[0];
     for(int i=0;i<n-1;i++)
         { 
-             c|=(buff[i+1]<<(8*(i+1)));
+            c|=(buff[i+1]<<(8*(i+1)));
         }
 
     return c;
 }
-FatType TypeofFAT(FILE *fp)
-{   
+
+FatType TypeofFAT(FILE *fp){   
     FatType flag=FAT12;
     fseek(fp,0x36,SEEK_SET);
     // uint16_t *buffer=(uint16_t*)malloc(5*sizeof(uint16_t));
