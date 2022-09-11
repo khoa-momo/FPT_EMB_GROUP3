@@ -1,5 +1,44 @@
 #include "FAT.h"
 ///////Read N Byte From Offset
+int numForder=0;
+
+Node * CreatNode(File fp)
+{
+    Node *node=malloc(sizeof(Node));
+    node->file=fp;
+    return node;
+}
+void CreatList(List *l)
+{
+    l->head=NULL;
+    l->tail=NULL;
+}
+void AddNode(List *l,Node *p)
+{
+    if(l->head==NULL)
+    {
+        l->head=p;
+    }
+    else 
+    {
+        Node *q=l->head;
+      while(q->next!=NULL)
+      {
+            q=q->next;
+      }
+      q->next=p;
+    }
+}
+void DeleteNode(List *l,Node *p)
+{
+    Node *q=l->head;
+    while (q->next!=p)
+    {
+        q=q->next;
+    }
+    q->next=p->next;
+    delete(p);
+}
 int ReadnByte(int n,int offset,FILE *fp)
 {  
     int *buff=(int *)malloc(n*sizeof(int));
@@ -13,7 +52,6 @@ int ReadnByte(int n,int offset,FILE *fp)
         { 
              c|=(buff[i+1]<<(8*(i+1)));
         }
-
     return c;
 }
 FatType TypeofFAT(FILE *fp)
@@ -44,7 +82,7 @@ FatType TypeofFAT(FILE *fp)
 }
 char *Hex2Char(int n,int offset,FILE *fp)
 {
-    char *s=malloc(n*sizeof(char));
+    char *s= (char*)malloc(n* sizeof(char) );
     fseek(fp,offset,SEEK_SET);
     for(int i=0;i<8;i++)
     {
@@ -98,7 +136,7 @@ void Displayboot(Boot boot)
 File* Read_File(FILE *fp)
 {
     Boot boot =Read_Boot(fp);
-    
+    File *file=(File*)malloc(224*sizeof(File));
     //find the Root Directory
     // Sec cua Root= So luong Fat * Kich thuoc Fat+ BootSector
     int RootSector=boot.numfat*boot.secperfat+boot.secbeforefat;
@@ -106,21 +144,51 @@ File* Read_File(FILE *fp)
     // file
     int offset =0x20;
     int pointer=RootSector*0x200;
-    for(int i=0;i<224;i++,pointer+=offset)
-        {  
+    int c=0;
+    for(int pointer=RootSector*0x200;pointer<0x4200;pointer+=0x20)
+        { 
             while(ReadnByte(1,pointer+0x0b,fp)==0x0f)
-                {
-                    pointer+=offset;
-                }
-                file[i].name=Hex2Char(8,pointer+Filename,fp);
-                file[i].extension=Hex2Char(3,pointer+NameExten,fp);
+            {
+                pointer+=0x20;
+            }
+                file[c].name=Hex2Char(8,pointer+Filename,fp);
+                file[c].extension=Hex2Char(3,pointer+NameExten,fp);
+                file[c].FirstClus=ReadnByte(2,pointer+FisrtClus,fp);
+                ++c;     
         }
     return file;
 }
-void main()
+File file[244];
+static int count_filefolder=-1;
+void Scan_Folder(int pointer,FILE *fp)
+{   
+    
+    while(ReadnByte(1,pointer,fp)!=0)
+    {   
+        count_filefolder++;
+        while(ReadnByte(1,pointer+0x0b,fp)==0x0f)
+            {
+                pointer+=0x20;
+            }
+        file[count_filefolder].name=Hex2Char(8,pointer,fp);
+        file[count_filefolder].extension=Hex2Char(3,pointer+NameExten,fp);
+        file[count_filefolder].FirstClus=ReadnByte(2,pointer+FisrtClus,fp);
+        if(file[count_filefolder].extension[1]==' ')
+        {
+            Scan_Folder((file[count_filefolder].FirstClus+0x1f)*0x200+0x40,fp);
+        } 
+        pointer+=0x20; 
+    }
+}
+int main()
 {   
     FILE *fp=fopen("floppy.img","r");
-    File *file=Read_File(fp);
-    printf("%s",file[223].name);
-
+    // File *file=Read_File(fp);
+    // printf("%s",file[223].name);
+    Scan_Folder(0x2600,fp);
+    for(int i=0;i<count_filefolder;i++)
+    {
+        printf("%s\n",file[i].name);
+    }
+    return 0;
 }

@@ -42,15 +42,16 @@ typedef struct RootDirectory
         int daycreat;  //yyyyyyymmmmddddd
         //data size
         int datasize;
+        char *name;
         int timecreat; //hhhhhmmmmmmxxxxx
         //Filename
-        char *name;
+        
         //extension
         char *extension;  
         //Cluster 
-        int Cluster[10];
+        int FirstClus;
     } File;  
-File file[224];  
+
 typedef struct BootSector 
     {   //type of FAT
         FatType Fat_Type;
@@ -67,14 +68,30 @@ typedef struct BootSector
         //Sec per FAT
         int secperfat;
     } Boot;
+typedef struct Node{
+    File file;
+    struct Node *next;
+}Node;
+typedef struct LinkedList
+{
+	Node  *head;
+	Node  *tail;
+}List;
 
+Node * CreatNode(File );
+void CreatList(List *l);
+void DeleteNode(List *l,Node *p)
+void AddNode(List *l,Node *p);
 void Displayboot(Boot);  // check boot
 Boot Read_Boot(FILE *fp); // read boot
 FatType Fat_Type(FILE *fp );// Check type of Fat
 int ReadnByte(int,int,FILE *fp);
 File* Read_File(FILE *fp);   // read File
 char *Hex2Char(int n,int, FILE *fp);
-
+void Read_Subfolder(FILE *fp); // read thu muc con
+void Scan_Folder(int pointer,FILE *fp);
+// void Read_NameFile(File file[]);
+// int* indexSubfolder(File file[]);
 //dọc bit de ngay thang gio
 //tu cluster trich xuat data
 
