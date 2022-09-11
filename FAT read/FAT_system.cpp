@@ -71,7 +71,7 @@ void getRootSector(FILE *fptr, Entr_Main_Root *Root, int startIndex){
 	//0x0b -char
 	Shift_Offset(ENTRY_FILE_ATTR+startIndex,0);
 	for(i=0;i<ENTRY_FILE_ATTR_BYTE;i++){
-		Root->ext[i]=fgetc(fptr);
+		Root->attr=fgetc(fptr);
 	}  
 	//0x1a -int
 	Shift_Offset(ENTRY_START_CLU_NUM+startIndex,0);
@@ -189,7 +189,7 @@ Entr_Main_Root *foo2(FILE *fptr, Boot_Sector *Boot, int n) {
 //		printf("||whatever: %x||\n",whatever);
 		
 		int whatever;	
-		Shift_Offset(0,0);
+		Shift_Offset(9,0);
 		for(int i=0; i<1; i++){
 			whatever+=(fgetc(fptr)<<(8*i));
 		}
@@ -210,7 +210,7 @@ Entr_Main_Root *foo2(FILE *fptr, Boot_Sector *Boot, int n) {
 		//0x0b -char
 		Shift_Offset(ENTRY_FILE_ATTR +index,0);
 		for(i=0; i<ENTRY_FILE_ATTR_BYTE; i++){
-			(Root+count) ->ext[i]=fgetc(fptr);
+			(Root+count) ->attr=fgetc(fptr);
 		}  
 		//0x1a -int
 		Shift_Offset(ENTRY_START_CLU_NUM +index,0);
