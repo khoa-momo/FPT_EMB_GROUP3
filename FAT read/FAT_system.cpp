@@ -58,6 +58,7 @@ void getRootSector(FILE *fptr, Entr_Main_Root *Root, int startIndex){
 	int i;
 	//Main entry
 	//0x00 -char
+	printf("|||||||%x|||||||\n",ENTRY_START_CLU_NUM +startIndex);
 	Shift_Offset(ENTRY_FILE_NAME+startIndex,0);
 	for(i=0;i<ENTRY_FILE_NAME_BYTE;i++){
 		Root->name[i]=fgetc(fptr);
@@ -110,12 +111,13 @@ int findRootDirectory(Boot_Sector Boot){
 //	int RootBlock = (Boot.root_entr_cnt*32)/512; 
 //	printf("\RootBlock: %d\n",RootBlock);
 //	int ClusStart = RootDirectory+RootBlock-2;
-	return (RootDirectoryStart);
+	return (RootDirectoryStart+32);
 }  
 
 void displayRoot(Entr_Main_Root Root){  
 	//3.Data
 	printf("\n#2.ROOT ATTRIBUTE\n");
+	printf("name:%s\n",Root.name);
 	printf("First_cluster:%d\n",Root.first_clus);
 	printf("Size:%d\n",Root.size);
 	
@@ -128,94 +130,132 @@ void findClusStart(Boot_Sector Boot, Entr_Main_Root Root){
 	printf("\nRoot_entr_cnt:%d; RootBlock: %d\n",Boot.root_entr_cnt, RootBlock);
 	int ClusStart = RootDirectory+RootBlock-2;
 	
-	printf("ClusStart: %d\n",ClusStart);//31
-	int data = Root.first_clus + ClusStart;//3
+	printf("Data_Cluster_Start: %d\n",ClusStart);//31
+	int data = Root.first_clus + ClusStart;//3 + 31
 	printf("data:%d; data:%d-%x\n",data,data*0x200,data*0x200);
+	
+	
 //	printf("return FAT: %x\n",(Root.first_clus*2)/0x200);
 //	return data;
 } 
 
-void READROOT(FILE *fptr, Boot_Sector Boot, Entr_Main_Root Root){ 
-	char temp;
-	for(int i = 0; i < 32 * Boot.root_entr_cnt; i+=32){
-		fseek(fptr, 0x2600 + i, SEEK_SET);
-//	   	SET_FILE_POITER(0x2600 + i);
-	    if((temp = fgetc(fptr) != NULL)){
-	    	
-	    	fseek(fptr, 0x2600 + 0x0B + i, SEEK_SET);
-//	       	SET_FILE_POITER(0x2600 + 0x0B + i);
-	       	
-	       	if((temp = fgetc(fptr)) == 0x0F){
-	           /* Do Nothing */
-	       	}
-	       	else{
-	           	Root.first_clus = 0;
-	           	fseek(fptr, 0x2600 + 0x1A + i, SEEK_SET);
-//	           	SET_FILE_POITER(0x2600 + 0x1A + i);
-	           	for(int i = 0; i < 2; i++){
-	               	Root.first_clus += (fgetc(fptr) << (8 * i));
-	           	}printf("%x\n", Root.first_clus);
-	       	}
-	   	}
-		else{
-	       	break;
-	   	}
+//void READROOT(FILE *fptr, Boot_Sector Boot, Entr_Main_Root Root){ 
+//	char temp;
+//	for(int i = 0; i < 32 * Boot.root_entr_cnt; i+=32){
+//		fseek(fptr, 0x2600 + i, SEEK_SET);
+////	   	SET_FILE_POITER(0x2600 + i);
+//	    if((temp = fgetc(fptr) != NULL)){
+//	    	
+//	    	fseek(fptr, 0x2600 + 0x0B + i, SEEK_SET);
+////	       	SET_FILE_POITER(0x2600 + 0x0B + i);
+//	       	
+//	       	if((temp = fgetc(fptr)) == 0x0F){
+//	           /* Do Nothing */
+//	       	}
+//	       	else{
+//	           	Root.first_clus = 0;
+//	           	fseek(fptr, 0x2600 + 0x1A + i, SEEK_SET);
+////	           	SET_FILE_POITER(0x2600 + 0x1A + i);
+//	           	for(int i = 0; i < 2; i++){
+//	               	Root.first_clus += (fgetc(fptr) << (8 * i));
+//	           	}printf("%x\n", Root.first_clus);
+//	       	}
+//	   	}
+//		else{
+//	       	break;
+//	   	}
+//	}
+//}
+
+
+
+Entr_Main_Root *foo2(FILE *fptr, Boot_Sector *Boot, int n) { 
+    // creating array of n numbers
+    Entr_Main_Root *Root = (Entr_Main_Root*)malloc(n * sizeof(Entr_Main_Root));;
+    // do something with array
+//    int count = 0;
+    
+    for(int count = 0; count<n; count++){
+//    	(array+i) -> num = i;
+//		fseek(fptr, 0x2600+(count*32), SEEK_SET);
+		int index = 0x2600+(count*32);
+		printf("|||||||%x|||||||\n",ENTRY_START_CLU_NUM +index);
+		
+//		int whatever;
+//		Shift_Offset(ENTRY_START_CLU_NUM +index,0);
+//		for(int i=0; i<ENTRY_START_CLU_NUM_BYTE; i++){
+//			whatever+=(fgetc(fptr)<<(8*i));
+//		}
+//		printf("||whatever: %x||\n",whatever);
+		
+		int whatever;	
+		Shift_Offset(0,0);
+		for(int i=0; i<1; i++){
+			whatever+=(fgetc(fptr)<<(8*i));
+		}
+		printf("||whatever: %x||\n",whatever);
+		
+		int i; 
+		//Main entry
+		//0x00 -char
+		Shift_Offset(ENTRY_FILE_NAME +index,0);
+		for(i=0; i<ENTRY_FILE_NAME_BYTE; i++){
+			(Root+count) ->name[i]=fgetc(fptr);
+		} 
+		//0x08 -char
+		Shift_Offset(ENTRY_FILE_NAME_EXT +index,0);
+		for(i=0; i<ENTRY_FILE_NAME_EXT_BYTE; i++){
+			(Root+count) ->ext[i]=fgetc(fptr);
+		} 
+		//0x0b -char
+		Shift_Offset(ENTRY_FILE_ATTR +index,0);
+		for(i=0; i<ENTRY_FILE_ATTR_BYTE; i++){
+			(Root+count) ->ext[i]=fgetc(fptr);
+		}  
+		//0x1a -int
+		Shift_Offset(ENTRY_START_CLU_NUM +index,0);
+		for(i=0; i<ENTRY_START_CLU_NUM_BYTE; i++){
+			(Root+count) ->first_clus+=(fgetc(fptr)<<(8*i));
+		}
+		//0x1c -long
+		Shift_Offset(ENTRY_SIZE_FILE +index,0);
+		for(i=0; i<ENTRY_SIZE_FILE_BYTE; i++){
+			(Root+count) ->size+=(fgetc(fptr)<<(8*i));
+		} 
+//		count++;
 	}
+	    
+    
+    
+    
+    return Root;
 }
 
-void READROOT_All(FILE *fptr, Boot_Sector Boot, Entr_Main_Root Root){ 
-	char temp;
-	for(int i = 0; i < 32 * Boot.root_entr_cnt; i+=32){
-		//1.
-		fseek(fptr, 0x2600 + i, SEEK_SET); 
-	    if((temp = fgetc(fptr) != NULL)){
-	    	
-	    	fseek(fptr, 0x2600 + 0x0B + i, SEEK_SET); 
-	       	
-	       	if((temp = fgetc(fptr)) == 0x0F){
-	           /* Do Nothing */
-	       	}
-	       	else{
-	           	Root.first_clus = 0;
-	           	fseek(fptr, 0x2600 + 0x1A + i, SEEK_SET); 
-	           	for(int i = 0; i < 2; i++){
-	               	Root.first_clus += (fgetc(fptr) << (8 * i));
-	           	}printf("%x\n", Root.first_clus);
-	       	}
-	   	}
-		else{
-	       	break;
-	   	}
-	}
-}
 
-void getRootSector(FILE *fptr, Entr_Main_Root *Root, int startIndex){
-	int i;
-	//Main entry
-	//0x00 -char
-	Shift_Offset(ENTRY_FILE_NAME+startIndex,0);
-	for(i=0;i<ENTRY_FILE_NAME_BYTE;i++){
-		Root->name[i]=fgetc(fptr);
-	} 
-	//0x08 -char
-	Shift_Offset(ENTRY_FILE_NAME_EXT+startIndex,0);
-	for(i=0;i<ENTRY_FILE_NAME_EXT_BYTE;i++){
-		Root->ext[i]=fgetc(fptr);
-	} 
-	//0x0b -char
-	Shift_Offset(ENTRY_FILE_ATTR+startIndex,0);
-	for(i=0;i<ENTRY_FILE_ATTR_BYTE;i++){
-		Root->ext[i]=fgetc(fptr);
-	}  
-	//0x1a -int
-	Shift_Offset(ENTRY_START_CLU_NUM+startIndex,0);
-	for(i=0;i<ENTRY_START_CLU_NUM_BYTE;i++){
-		Root->first_clus+=(fgetc(fptr)<<(8*i));
-	}
-	//0x1c -long
-	Shift_Offset(ENTRY_SIZE_FILE+startIndex,0);
-	for(i=0;i<ENTRY_SIZE_FILE_BYTE;i++){
-		Root->size+=(fgetc(fptr)<<(8*i));
-	} 
-}
+//void READROOT_All(FILE *fptr, Boot_Sector Boot, Entr_Main_Root Root){ 
+//	char temp;
+//	for(int i = 0; i < 32 * Boot.root_entr_cnt; i+=32){
+//		//1.
+//		fseek(fptr, 0x2600 + i, SEEK_SET); 
+//	    if((temp = fgetc(fptr) != NULL)){
+//	    	
+//	    	fseek(fptr, 0x2600 + 0x0B + i, SEEK_SET); 
+//	       	
+//	       	if((temp = fgetc(fptr)) == 0x0F){
+//	           /* Do Nothing */
+//	       	}
+//	       	else{
+//	           	Root.first_clus = 0;
+//	           	fseek(fptr, 0x2600 + 0x1A + i, SEEK_SET); 
+//	           	for(int i = 0; i < 2; i++){
+//	               	Root.first_clus += (fgetc(fptr) << (8 * i));
+//	           	}printf("%x\n", Root.first_clus);
+//	       	}
+//	   	}
+//		else{
+//	       	break;
+//	   	}
+//	}
+//}
+  
 #endif
