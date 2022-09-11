@@ -188,12 +188,12 @@ Entr_Main_Root *foo2(FILE *fptr, Boot_Sector *Boot, int n) {
 //		}
 //		printf("||whatever: %x||\n",whatever);
 		
-		int whatever;	
-		Shift_Offset(9,0);
-		for(int i=0; i<1; i++){
-			whatever+=(fgetc(fptr)<<(8*i));
+		int whatever2;	
+		Shift_Offset(ENTRY_START_CLU_NUM +index,0);
+		for(int i=0; i<2; i++){
+			whatever2=(fgetc(fptr)<<(8*i));
 		}
-		printf("||whatever: %x||\n",whatever);
+		printf("||whatever2: %x||\n",whatever2);
 		
 		int i; 
 		//Main entry
