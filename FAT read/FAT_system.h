@@ -123,6 +123,7 @@
 
 //shift to offset
 #define Shift_Offset(x,y)		fseek(fptr,x,y)	
+FILE *fptr;
 
 typedef struct Boot_Sector{
 	//1.Fat: Fat_Type; no_of_FAT
