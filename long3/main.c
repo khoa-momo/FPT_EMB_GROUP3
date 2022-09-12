@@ -1,9 +1,8 @@
 #include"FAT_system.h"
-//#include"FAT_system.c"
+#include"FAT_system.c"
 
-int main()
-{
-	fp=fopen("floppy_2.img","r");
+int main(){
+	fp=fopen("floppy.img","rb");
 	char arr[100]="doc.txt";
 	FILE*fp2=fopen(arr,"w");	
 	
@@ -11,8 +10,7 @@ int main()
 	
 	int i;
 	Shift_Offset(0x2600);
-	for(i=0;i<512;i++)
-	{
+	for(i=0;i<512;i++){
 		printf("%c",fgetc(fp));
 	}
 
