@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-
+#include "FAT.h"
 
 
 
@@ -19,7 +19,7 @@
 #define        NumEntry  0x11u  //SR            2
 #define        SecPerFat  0x16u //SF            2
 #define        TypeofFat_12_16 0x36u      //    8  
-#define         TypeofFat32   0x58u  //         8
+#define        TypeofFat32   0x58u  //         8
 //////////////////////FAT///////////////////////////////////////////
 
 ///////////////////////ROOTDIRECTORY////////////////////////////////
@@ -36,8 +36,11 @@ typedef enum {
     FAT16=1,
     FAT32=2
 }FatType;
-typedef struct RootDirectory 
+
+typedef struct File 
     {   
+        // num of subfolder
+        int numSub;
         //timecreated or last update 
         int daycreat;  //yyyyyyymmmmddddd
         //data size
@@ -45,7 +48,6 @@ typedef struct RootDirectory
         char *name;
         int timecreat; //hhhhhmmmmmmxxxxx
         //Filename
-        
         //extension
         char *extension;  
         //Cluster 
@@ -69,30 +71,35 @@ typedef struct BootSector
         int secperfat;
     } Boot;
 typedef struct Node{
-    File file;
+    File *file;
     struct Node *next;
 }Node;
 typedef struct LinkedList
 {
-	Node  *head;
+	Node  *RootDirectory;
 	Node  *tail;
 }List;
 
-Node * CreatNode(File );
+Node *CreatNode(File *f);
 void CreatList(List *l);
-void DeleteNode(List *l,Node *p)
+void DeleteFinalNode(List *l);
 void AddNode(List *l,Node *p);
-void Displayboot(Boot);  // check boot
+void DisplayList(List *l);
+
+void Displayboot(Boot boot);
 Boot Read_Boot(FILE *fp); // read boot
 FatType Fat_Type(FILE *fp );// Check type of Fat
+
+
+
+///tool
 int ReadnByte(int,int,FILE *fp);
-File* Read_File(FILE *fp);   // read File
 char *Hex2Char(int n,int, FILE *fp);
-void Read_Subfolder(FILE *fp); // read thu muc con
-void Scan_Folder(int pointer,FILE *fp);
-// void Read_NameFile(File file[]);
-// int* indexSubfolder(File file[]);
-//dọc bit de ngay thang gio
-//tu cluster trich xuat data
+///
+
+void Go2Folder_File(FILE *fp,List *l,File *f);
+void Scan_Folder(File *f,FILE *fp,List *l);
+File *ScanRoot(FILE *fp);
+File *ScanFolder(File *f,FILE *fp);
 
 #endif

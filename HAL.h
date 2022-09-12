@@ -4,13 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-
-void HAL_ReadBoot(FILE *fp);
-void HAL_DisplayData(FILE *fp);
-
-
-
-
+#include "FAT.c"
+#include "FAT.h"
+void DisplayFile(FILE *fp);
 
 #endif
