@@ -51,9 +51,6 @@
 #define	ENTRY_FILE_ATTR				(0X0bU)
 #define	ENTRY_FILE_ATTR_BYTE		(0x01U)
 
-#define	ENTRY_RESERVED				(0x0cU)
-#define	ENTRY_RESERVED_BYTE			(0x0aU)
-
 #define	ENTRY_START_CLU_HIG			(0x14U)
 #define	ENTRY_START_CLU_HIG_BYTE	(0x02U)
 
@@ -154,20 +151,24 @@ typedef struct{
 	char las_two_char[4];
 }Entr_Long;
 
-FILE*fp;
-
-//declared
-
+//////declared//////////////////////////////////////////////
+void print_Str(char str[],int size );
 void getBootSector(Boot_Sector *Boot);
 Boot_Sector *readBootSector();
 void displayBoot(Boot_Sector Boot);
 void getShortEntry(Entry_Short *entr_sh,int offset);
 Entry_Short *readEntryShort(int offset,int size_root,int *cnt_entr_sh);
 void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int);
-void print_Str(char str[],int size );
+
 void readEntrInClus(Entry_Short *entr_sh,int offset, int *cnt_entr_sh);
+uint16_t GetFatValue12( uint16_t PrsClus);
 void readData();
 void checkFile(Entry_Short **entr_sh,int *cnt_entr_sh,int i);
 
+int getDataFile(Entry_Short *entr_sh,int index);
+
+/////////global_variable///////////// 
+FILE*fp;
+Boot_Sector *Boot;
 
 #endif
