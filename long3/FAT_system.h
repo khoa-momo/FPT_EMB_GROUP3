@@ -73,7 +73,7 @@
 #define ENTRY_FIR_FIV_CHAR			(0x01U)
 #define ENTRY_FIR_FIV_CHAR_BYTE		(0x0aU)
 
-#define ENTRY_FLAG					(0x0bU)
+#define ENTRY_FLAG					(0x0bU) //File attributes
 #define ENTRY_FLAG_BYTE				(0x01U)
 
 #define ENTRY_RESEVSER				(0x0cU)

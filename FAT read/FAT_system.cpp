@@ -91,16 +91,13 @@ void displayBoot(Boot_Sector Boot){
 	printf("FAT_type:%s\n",Boot.FAT_type);
 	printf("Num_FAT:%d\n",Boot.num_FAT);
 	printf("Resv_sec_cnt:%d\n",Boot.resv_sec_cnt);
-	printf("Sec_per_FAT:%d\n",Boot.sec_per_FAT);
-	
+	printf("Sec_per_FAT:%d\n",Boot.sec_per_FAT); 
 	//2.Root
 	printf("Root_entr_cnt:%d\n",Boot.root_entr_cnt);
-	
 	//3.Data
 	printf("Byte_per_sec:%d\n",Boot.byte_per_sec);
 	printf("Sec_per_clus:%d\n\n",Boot.sec_per_clus);
-	
-	//printf("%mark:s\n",Boot.mark);
+	 
 }
     
 int findRootDirectory(Boot_Sector Boot){
