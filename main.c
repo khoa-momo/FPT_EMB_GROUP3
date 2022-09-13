@@ -3,16 +3,16 @@
 
 int main()
 {
-	fp=fopen("floppy_2.img","r");
+	fp=fopen("floppy_2.img","rb");
 	
-	int i;
-	Shift_Offset(0x300);
-	for(i=0;i<512;i++){
-		printf("%x-",fgetc(fp));
-	}
+//	int i;
+//	Shift_Offset(0x300);
+//	for(i=0;i<512;i++){
+//		printf("%x-",fgetc(fp));
+//	}
 
-	readData();
- 
+	//readData();
+ 	readDataNode();
 	//fclose(fp);
 	return 0;
 }

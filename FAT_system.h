@@ -115,6 +115,9 @@
 //shift to offset
 #define Shift_Offset(x)		fseek(fp,x,0)	
 
+typedef enum bool{
+	true=0,false=1
+}bool;
 
 typedef struct Boot_Sector{
 	int byte_per_sec;
@@ -130,16 +133,22 @@ typedef struct Boot_Sector{
 
 //entry main in root directory
 typedef struct Entr_Main_Root{
+	//data
 	char name[8];
-	int unkown;
 	char ext[3];
 	char attr;
 	int first_clus_hig;
 	//char reserver[10];
-	//char time[2];
-	//char date[2];
+	char time[2];
+	char date[2];
 	int first_clus_low;
 	//long size;
+	
+	//link
+//	int sub_file_first;
+//	int sub_file_end;
+//	int index_parent;
+	
 }Entry_Short;
 
 typedef struct{
@@ -151,24 +160,55 @@ typedef struct{
 	char las_two_char[4];
 }Entr_Long;
 
+
+
+
 //////declared//////////////////////////////////////////////
 void print_Str(char str[],int size );
+
 void getBootSector(Boot_Sector *Boot);
 Boot_Sector *readBootSector();
 void displayBoot(Boot_Sector Boot);
+void callBootSector();
+
 void getShortEntry(Entry_Short *entr_sh,int offset);
-Entry_Short *readEntryShort(int offset,int size_root,int *cnt_entr_sh);
+void countEntryShort(int offset,int *cnt_entr_sh);
+Entry_Short * readEntryShort(int offset,int *cnt_entr_sh);
 void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int);
 
 void readEntrInClus(Entry_Short *entr_sh,int offset, int *cnt_entr_sh);
 uint16_t GetFatValue12( uint16_t PrsClus);
 void readData();
-void checkFile(Entry_Short **entr_sh,int *cnt_entr_sh,int i);
-
+void readDataNode();
+void checkFile(Entry_Short **entr_sh,int *cnt_entr_sh);
 int getDataFile(Entry_Short *entr_sh,int index);
+int getDataFileNode(Entry_Short *entr_sh,int index);
+Entry_Short * readEntrInClusNode(int offset, int *cnt_entr_sh,int locat_clus);
+
+
+
+//////////////////////////////////////////////////////////////////
+void checkFileNode(int locat_clus);
+
+/////////link_list////////////////////////////////////////////
+typedef struct Node{
+	Entry_Short entr_sh;
+	struct Node *next;
+} Node;
+
+void initList();
+bool isEmpty();
+void addNodeToList(Node*node);
+void removeNode();
+void createNode(Entry_Short *entr_sh);
+/////////////////////////////////////////////////////////////
 
 /////////global_variable///////////// 
 FILE*fp;
 Boot_Sector *Boot;
+
+//
+Node*head; 
+
 
 #endif
