@@ -95,7 +95,6 @@ Entry_Short *readEntryShort(int offset,int size_root,int *cnt_entr_sh){
 			getShortEntry(&entr_sh[*cnt_entr_sh], offset+0x20*(entr_locat-1));
 			(*cnt_entr_sh)++;
 		}
-		
 		/*Get entry starting from second index->realloc*/
 		else if(temp!=0){
 			entr_sh=(Entry_Short*)realloc(entr_sh,sizeof(Entry_Short));
@@ -157,13 +156,15 @@ void checkFile(Entry_Short **entr_sh, int *cnt_entr_sh, int i){
 		//IF ENTRY IS FOLDER
 		int check = ((entr_sh[0]+i) -> attr==0x10);
 		if(check){	
+//			printf("Name:");
+//			print_Str((entr_sh[i]) -> name[0],ENTRY_FILE_NAME_BYTE);
 			//locat_clus: first_clus_low - 0x1a 
 			int locat_clus = (entr_sh[0]+i) -> first_clus_low;
-			printf("locat_clus: %x\n");
+			printf("i: %d |locat_clus: %x| name: %s\n", i+1, locat_clus, (entr_sh[0]+i) -> name);
 			do{
 				//offset: subfile location
 				offset = ((locat_clus-2)+0x21)*0x200+32*2;
-				printf("#Offset: %d\n",offset);
+				printf("#Offset: %x\n",offset);
 				//save old cnt_entr=7
 				sav_cnt_entr_old =* cnt_entr_sh;
 				printf("Old: %d\n",sav_cnt_entr_old);
@@ -180,7 +181,7 @@ void checkFile(Entry_Short **entr_sh, int *cnt_entr_sh, int i){
 }
 
 void readEntrInClus(Entry_Short *entr_sh, int offset, int *cnt_entr_sh){
-	printf("\nreadEntrInClus\n");
+	printf("\nReadEntrInClus\n");
 	int entr_locat = 0, flag;
 	int temp = 1;
 	//16 entry in 1 sector, 1 sector in 1 cluster 
@@ -219,8 +220,8 @@ uint16_t GetFatValue12(uint16_t PrsClus) /*for FAT12*/{
     }
     return NewVal;
 }
- 
-  
+ 	
+  	
 void readData(){
 	printf("readData\n");
 	//1. Boot

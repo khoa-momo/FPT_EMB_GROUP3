@@ -13,8 +13,8 @@ int main(){
 
 	//1.read data
 	readData();
- 
- 
+ 	
+ 	
 	fclose(fp);
 	return 0;
 }
