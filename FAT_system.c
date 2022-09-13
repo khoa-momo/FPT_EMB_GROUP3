@@ -9,11 +9,15 @@ void initList(){											////////linklist////////
 }
 //check list empty
 bool isEmpty(){												///////linklist///////
-	return head==NULL;
+	if( head==NULL)
+	{
+		return true;
+	}
+	return false;
 }
 //create node with data
 void createNode(Entry_Short *entr_sh){						///////linklist/////
-	Node* node=(Node*)malloc(sizeof(Node));
+	Node* node=(Node*)calloc(1,sizeof(Node));
 	addNodeToList(node);
 	int i;
 	for(i=0;i<ENTRY_FILE_NAME_BYTE;i++)
@@ -27,6 +31,7 @@ void addNodeToList(Node*node){								///////linklist///
 	if(isEmpty()){
 		printf("empty\n");
 		head=node;
+		head->next=NULL;
 	}
 	else{
 		printf("not empty\n");
@@ -38,21 +43,15 @@ void addNodeToList(Node*node){								///////linklist///
 }
 //delete node
 void removeNode(){											/////linklist///
-	Node*last_Node;
-	last_Node=head;
+	Node*last_Node=head;
 	if(isEmpty()){
 		printf("empty\n");
 	}
-	else if(last_Node->next==NULL){
+	else if(head->next==NULL){
 		free(last_Node);
 		head=NULL;		
 	}
-	else{
-//		while((last_Node->next)->next!=NULL){
-//			last_Node=last_Node->next;
-//		}
-//		free(last_Node->next);
-//		last_Node->next=NULL;	
+	else{	
 		head=head->next;	
 	}
 }
@@ -172,10 +171,7 @@ void countEntryShort(int offset,int *cnt_entr_sh){
 	//printf("cnt:%d\n",*cnt_entr_sh);
 }
 
-
 Entry_Short * readEntryShort(int offset,int *cnt_entr_sh){	 /////entry short/////////
-	printf("bbbb\n");
-
 	int index_entr=0;
 	int cnt_clus_root=Boot->root_entr_cnt*32/512;//number of clusters in root
 	int entr_locat=0,flag;
@@ -235,34 +231,19 @@ void getShortEntry(Entry_Short *entr_sh,int offset){					 /////entry short//////
 }
 void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int i){		 /////entry short///////
 	for(i;i<cnt_entr_sh;i++){
-		printf("\nFile dir %d\n",i+1);
+		printf("\nFile dir %d\n",i);
 		printf("Name:");
 		print_Str(&entr_sh[i].name[0],ENTRY_FILE_NAME_BYTE);
 		print_Str(&entr_sh[i].ext[0],ENTRY_FILE_NAME_EXT_BYTE);
 		printf("\n");
-		printf("%d\n",entr_sh[i].attr);
-		printf("start cluster:%d\n",entr_sh[i].first_clus_low);
+		//printf("%atribute:d\n",entr_sh[i].attr);
+		//printf("start cluster:%d\n",entr_sh[i].first_clus_low);
 	}
 }
-void readEntrInClus(Entry_Short *entr_sh,int offset, int *cnt_entr_sh){	 ////entry short///////
-	int entr_locat=0,flag;
-	int temp=1;
-	while(entr_locat<(16*Boot->sec_per_clus)&&temp!=0){//16 entry in 1 sector, 1 sector in 1 cluster 
-		entr_locat++;
-		Shift_Offset(offset+0x20*(entr_locat-1));
-		temp=fgetc(fp);
-		if(temp!=0){
-			entr_sh=(Entry_Short*)realloc(entr_sh,sizeof(Entry_Short));
-			getShortEntry(&entr_sh[*cnt_entr_sh],offset+0x20*(entr_locat-1));
-			(*cnt_entr_sh)++;
-		}
-	}
-}
+
 /////entryNode
 void countEntryShortClus(int offset,int *cnt_entr_sh,int locat_clus){
 	*cnt_entr_sh=0;
-	//printf("cnt:%d\n",*cnt_entr_sh);
-	//printf("offset:%d\n",offset);
 	int entr_locat=0,flag;
 	int temp=1;
 
@@ -279,9 +260,9 @@ void countEntryShortClus(int offset,int *cnt_entr_sh,int locat_clus){
 			}
 		}
 		locat_clus=GetFatValue12(locat_clus);///FAT12******************************************
-	}while(locat_clus!=FAT12_EOF);///FAT12******************************************
-	
+	}while(locat_clus!=FAT12_EOF);///FAT12******************************************	
 }
+
 Entry_Short * readEntrInClusNode(int offset, int *cnt_entr_sh,int locat_clus)			////entry short//////
 {
 	int index_entr=0;
@@ -309,7 +290,7 @@ Entry_Short * readEntrInClusNode(int offset, int *cnt_entr_sh,int locat_clus)			
 			locat_clus=GetFatValue12(locat_clus);///FAT12******************************************
 		}while(locat_clus!=FAT12_EOF);///FAT12******************************************	
 	}else{
-		printf("is empty\n");
+		printf("File is empty\n");
 		entr_sh=NULL;
 	}
 		
@@ -323,54 +304,8 @@ void callBootSector(){											//////////////DATA/////////////
 	Boot=readBootSector();
 	displayBoot(*Boot);
 }
-void readData(){												//////////////DATA////////////
-	callBootSector();
-	
-	int cnt_entr_sh=0;
-	int offset=(Boot->resv_sec_cnt+Boot->sec_per_FAT*Boot->num_FAT)*0x200;//root directory location
-	int cnt_clus_root=Boot->root_entr_cnt*32/512;//number of clusters in root
-	
-	Entry_Short *entr_sh=readEntryShort(offset,&cnt_entr_sh);//cnt_entr_sh=7
-	displayEntryShort(&entr_sh[0],cnt_entr_sh,0);
-	//checkFile(&entr_sh,&cnt_entr_sh);	
-		
-	printf("////////////*****__*****///////////");
-	printf("\nSelect the file to display data by number on the screen:");	
-	int temp;
-	scanf("%d",&temp);
-	temp--;
-	int check=(entr_sh[temp].attr!=0x10);
-	printf("check:%d\n",check);
-	if(check){
-		int status=getDataFile(&entr_sh[0],temp);
-	}else{
-		
-		
-	}	
-	
-}
-void checkFile(Entry_Short **entr_sh,int *cnt_entr_sh)			//////////////DATA///////////
-{	
-	int offset,sav_cnt_entr_old,i;
-	for(i=0;i<(*cnt_entr_sh);i++){
-		int check=((entr_sh[0]+i)->attr==0x10);
-		if(check)
-		{	
-			int locat_clus=(entr_sh[0]+i)->first_clus_low;
-			do{
-				offset=((locat_clus-2)+0x21)*0x200+32*2;//subfile location
-				//printf("\noffset:%d\n",offset);
-				sav_cnt_entr_old=*cnt_entr_sh;//save old cnt_entr=7
-				//printf("old:%d\n",sav_cnt_entr_old);
-				readEntrInClus(*entr_sh,offset,cnt_entr_sh);//push to entr_sh, cnt_entr increase
-				locat_clus=GetFatValue12(locat_clus);///FAT12******************************************
-			}while(locat_clus!=FAT12_EOF);///FAT12******************************************
-			displayEntryShort(entr_sh[0],*cnt_entr_sh,sav_cnt_entr_old);//di///FAT12******************************************splay new add list
-		}	
-	}
-}
-int getDataFile(Entry_Short *entr_sh,int index){				//////////////DATA/////////
-	
+
+int getDataFile(Entry_Short *entr_sh,int index){				//////////////DATA/////////	
 	printf("\n\nName:");
 	print_Str(&entr_sh[index].name[0],ENTRY_FILE_NAME_BYTE);
 	print_Str(&entr_sh[index].ext[0],ENTRY_FILE_NAME_EXT_BYTE);
@@ -398,44 +333,106 @@ int getDataFile(Entry_Short *entr_sh,int index){				//////////////DATA/////////
 
 void readDataNode(){											////////////DATA/////////
 	callBootSector();			
-
 	initList();
-	//create node
 		
 	int cnt_entr_sh;
-	int cnt_entr_sh_sub;
+
 	int offset=(Boot->resv_sec_cnt+Boot->sec_per_FAT*Boot->num_FAT)*0x200;//root directory location
 	int cnt_clus_root=Boot->root_entr_cnt*32/512;//number of clusters in root
 	
 	Entry_Short *entr_sh=readEntryShort(offset,&cnt_entr_sh);//cnt_entr_sh=7
-	displayEntryShort(&entr_sh[0],cnt_entr_sh,0);
-
-
-	printf("////////////*****__*****///////////");
-	printf("\nSelect the file to display data by number on the screen:");	
-	int temp;
-	scanf("%d",&temp);
-	temp--;
-	int check=(entr_sh[temp].attr!=0x10);
-	printf("check:%d\n",check);
-	if(check){
-		int status=getDataFile(&entr_sh[0],temp);
-	}else{
-		printf("AAAA\n");
-		createNode(&entr_sh[temp]);
-		printf("AAAA\n");
-		int offset_clus=((head->entr_sh.first_clus_low-2)+0x21)*0x200+32*2;//subfile location
-		printf("AAAA\n");
-		Entry_Short *entr_sh_sub=readEntrInClusNode(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);
-		printf("AAAA\n");
-		//checkFileNode(entr_sh[temp].first_clus_low);
-		displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
-	}	
-	
+	displayEntryShort(&entr_sh[0],cnt_entr_sh,0);//hient thi root
+		
+	checkFileNode(&entr_sh[0],cnt_entr_sh);	
 }
 
-void checkFileNode(int locat_clus){								////////////DATA////////
+void checkFileNode(Entry_Short *entr_sh,int cnt_entr_sh){								////////////DATA////////
+	int check;
+	int temp;
+	char input;
+	int offset_clus;
+	int cnt_entr_sh_sub=cnt_entr_sh;
+	int cnt_entr_cpy;
+	cnt_entr_cpy=cnt_entr_sh_sub;
+	Entry_Short *entr_sh_sub=entr_sh;
 	
+	int status=0;
+	while(1)
+	{//open while
+		printf("\n////////////*****__*****///////////");
+		if(status==1)//status==1 --- open
+		{
+			//displayEntryShort(&entr_sh_sub[0],cnt_entr_cpy,0);
+			printf("\nSelect the function by entering the character in front of the function:\n");
+			printf("\tx. Out program\n");
+			printf("\tb. Back to previous folder\n");
+			
+			do{
+				printf("Enter your selection:");
+				scanf("%c",&input);
+				fflush(stdin);
+			}while(input!='x'&&input!='b');
+			
+			if(input=='x')
+			{//temp=='x' --- open
+				return;
+			}//temp=='x' --- close
+			else if(input=='b')
+			{//temp=='b' --- open				
+				status=0;//resert status
+				displayEntryShort(&entr_sh_sub[0],cnt_entr_cpy,0);//hien thi lai folder truoc do 
+			}//temp=='b' --- close			
+		}//status==1 --- close
+		else
+		{//status==0 --- open
+			printf("\nSelect the function or open the file by entering the character in front of the function or file:\n");	
+			printf("\tX. Out program\n");
+			(isEmpty()!=1)?printf("\tB. Back to previous folder\n"):printf("");	
+			do{
+				printf("Enter your selection:");
+				scanf("%c",&input);
+				fflush(stdin);
+				((isEmpty()==1)&&(input==98))?(input=47):printf("");
+			}while((input<48||((input>(cnt_entr_sh_sub+48))&&(input!='x'&&input!='b'))));
+			//ascii: 	b-98		x-120	number + 48
+			if(input=='x')//if temp
+			{
+				return;
+			}
+			else if(input=='b')//if temp
+			{
+				removeNode();
+				if(isEmpty()){
+					cnt_entr_sh_sub=cnt_entr_sh;
+					entr_sh_sub=entr_sh;
+					displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
+					cnt_entr_cpy=cnt_entr_sh_sub;
+				}else{
+					offset_clus=((head->entr_sh.first_clus_low-2)+0x21)*0x200+32*2;//subfile location
+					entr_sh_sub=readEntrInClusNode(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);		
+					displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
+					cnt_entr_cpy=cnt_entr_sh_sub;
+				}
+			}
+			else//if temp
+			{
+				temp=(int)input-48;
+				check=(entr_sh_sub[temp].attr!=0x10);
+				if(check){
+					status=getDataFile(&entr_sh_sub[0],temp);
+				}else{
+					//int cnt_entr_sh_sub=0;
+					createNode(&entr_sh_sub[temp]);
+					offset_clus=((head->entr_sh.first_clus_low-2)+0x21)*0x200+32*2;//subfile location
+					entr_sh_sub=readEntrInClusNode(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);		
+					displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
+					cnt_entr_cpy=cnt_entr_sh_sub;
+				}	
+			}//if temp	
+		}//status==0 --- close	
+	}//close white
+	
+
 }
 
 /////////////////////////DATA -end///////////////////////////////////////////////////

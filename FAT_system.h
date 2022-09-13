@@ -116,7 +116,7 @@
 #define Shift_Offset(x)		fseek(fp,x,0)	
 
 typedef enum bool{
-	true=0,false=1
+	true=1,false=0
 }bool;
 
 typedef struct Boot_Sector{
@@ -184,11 +184,10 @@ void checkFile(Entry_Short **entr_sh,int *cnt_entr_sh);
 int getDataFile(Entry_Short *entr_sh,int index);
 int getDataFileNode(Entry_Short *entr_sh,int index);
 Entry_Short * readEntrInClusNode(int offset, int *cnt_entr_sh,int locat_clus);
-
+void checkFileNode(Entry_Short *entr_sh,int cnt_entr_sh);
 
 
 //////////////////////////////////////////////////////////////////
-void checkFileNode(int locat_clus);
 
 /////////link_list////////////////////////////////////////////
 typedef struct Node{
@@ -201,6 +200,7 @@ bool isEmpty();
 void addNodeToList(Node*node);
 void removeNode();
 void createNode(Entry_Short *entr_sh);
+void printList();
 /////////////////////////////////////////////////////////////
 
 /////////global_variable///////////// 
