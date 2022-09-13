@@ -6,27 +6,31 @@
 #include <stdlib.h>
 #include "FAT.h"
 
-////////////////////////BOOT OffSet////////////////////////////////////////
-//////////////////////////////////////////////Byte//////////////
-#define        SecPerClus     0x0du    // SC    1
-#define        BytePerSec  0x0bu    //          2
-#define        SecBeForeFAT  0x0eu      //SB    2
-#define        NumFAT   0x10u     //Nf          1
-#define        NumEntry  0x11u  //SR            2
-#define        SecPerFat  0x16u //SF            2
-#define        TypeofFat_12_16 0x36u      //    8  
-#define        TypeofFat32   0x58u  //         8
-//////////////////////FAT///////////////////////////////////////////
+/*~~~~~~~~~~~~~~~~~~~~BOOT OffSet~~~~~~~~~~~~~~~~~~~~*/
+#define        SecPerClus     	0x0du    	//SC   	1
+#define        BytePerSec  		0x0bu    	//     	2
+#define        SecBeForeFAT  	0x0eu      	//SB    2
+#define        NumFAT   		0x10u     	//Nf    1
+#define        NumEntry  		0x11u  		//SR  	2
+#define        SecPerFat  		0x16u 		//SF  	2	
+#define        TypeofFat_12_16 	0x36u    	//    	8  
+#define        TypeofFat32   	0x58u  		//     	8
 
-///////////////////////ROOTDIRECTORY////////////////////////////////
-#define Filename  0x00u    //8
-#define NameExten 0x08u    //3
-#define FileAtrr  0x0bu    //1
-#define TimeCreat 0x16u     //2
-#define DateCreat 0x18u    //2
-#define FisrtClus  0x1au     //2
-#define FileSz     0x1cu    //4
-/// FATTYPE////////////////////////////////////////////////////
+/*~~~~~~~~~~~~~~~~~ROOT - MAIN ENTRY~~~~~~~~~~~~~~~~~*/
+#define Filename  (0x00U)    	//8
+#define NameExten (0x08U)    	//3
+#define FileAtrr  (0x0bU)    	//1
+
+#define TimeCreate  (0x0dU)    	//3
+#define DateCreate  (0x10U)    	//2
+
+#define TimeUpdate (0x16U)     	//2
+#define DateUpdate (0x18U)    	//2
+
+#define FisrtClus  (0x1aU)     	//2
+#define FileSz     (0x1cU)    	//4
+
+/*~~~~~~~~~~~~~~~~~FATTYPE~~~~~~~~~~~~~~~~~*/
 typedef enum {
     FAT12=0,
     FAT16=1,
@@ -37,11 +41,15 @@ typedef struct File {
     // num of subfolder
     int numSub;
     //timecreated or last update 
-    int daycreat;  //yyyyyyymmmmddddd
-    //data size
+    int timeCreate; //hhhhhmmmmmmxxxxx
+	int dateCreate;  //yy yy yyy mm mm dd dd d
+    
+    int timeUpdate; //hhhhhmmmmmmxxxxx
+    int dateUpdate;  //yy yy yyy mm mm dd dd d
+    
+	//data size
     int datasize;
     char *name;
-    int timecreat; //hhhhhmmmmmmxxxxx
     //Filename
     //extension
     char *extension;  
@@ -94,7 +102,11 @@ void Scan_Folder(File *f,FILE *fp,List *l);
 File *ScanRoot(FILE *fp);
 File *ScanFolder(File *f,FILE *fp);
 
+int count_Subfolder(int pointer,FILE *fp);
 
+//time&date reading
+void readDate(int raw_date);
+void readTime(int raw_time);
 
 
 #endif
