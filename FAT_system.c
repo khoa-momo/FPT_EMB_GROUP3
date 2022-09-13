@@ -2,21 +2,18 @@
 #define	__FAT_SYSTEM_C__
 #include"FAT_system.h"
 
-///////////LINK LIST - start//////////////////////////////////////////////////////////
-//create list
-void initList(){											////////linklist////////
+///////////LINK LIST - start/////////////////////////////////////////////////////////////////////////
+void initList(){						//create list							/////linklist///////
 	head=NULL;
 }
-//check list empty
-bool isEmpty(){												///////linklist///////
+bool isEmpty(){							//check list empty						/////linklist//////
 	if( head==NULL)
 	{
 		return true;
 	}
 	return false;
 }
-//create node with data
-void createNode(Entry_Short *entr_sh){						///////linklist/////
+void createNode(Entry_Short *entr_sh){	//create node with data					////linklist//////
 	Node* node=(Node*)calloc(1,sizeof(Node));
 	addNodeToList(node);
 	int i;
@@ -26,8 +23,7 @@ void createNode(Entry_Short *entr_sh){						///////linklist/////
 	}
 	(node->entr_sh).first_clus_low=entr_sh[0].first_clus_low;
 }
-//add Node to list
-void addNodeToList(Node*node){								///////linklist///
+void addNodeToList(Node*node){			//add Node to list						////linklist/////
 	if(isEmpty()){
 		printf("empty\n");
 		head=node;
@@ -36,13 +32,10 @@ void addNodeToList(Node*node){								///////linklist///
 	else{
 		printf("not empty\n");
 		node->next=head;
-		//printf("AAAA\n");
 		head=node;
-		//3printf("AAAA\n");
 	}
 }
-//delete node
-void removeNode(){											/////linklist///
+void removeNode(){						//delete node							////linklist////
 	Node*last_Node=head;
 	if(isEmpty()){
 		printf("empty\n");
@@ -55,8 +48,7 @@ void removeNode(){											/////linklist///
 		head=head->next;	
 	}
 }
-
-///////////LINK LIST - end////////////////////////////////////////////////
+///////////LINK LIST - end/////////////////////////////////////////////////////////////////////
 
 void print_Str(char str[],int size )
 {
@@ -67,15 +59,13 @@ void print_Str(char str[],int size )
 	}
 }
 
-//////////////Boot_sector-start///////////////////////////////////////////////////////
-Boot_Sector *readBootSector()						///////////Boot_sector///////////
-{
+//////////////Boot_sector-start/////////////////////////////////////////////////
+Boot_Sector *readBootSector(){						////////////Boot_sector////
 	Boot_Sector *Boot=(Boot_Sector*)calloc(1,sizeof(Boot_Sector));
 	getBootSector(Boot);
 	return Boot;
 }
-void getBootSector(Boot_Sector *Boot)				///////////Boot_sector/////////
-{
+void getBootSector(Boot_Sector *Boot){				///////////Boot_sector////
 	int i;
 	Shift_Offset(BOOT_BYTE_PER_SEC);
 	for(i=0;i<BOOT_BYTE_PER_SEC_BYTE;i++){
@@ -107,7 +97,7 @@ void getBootSector(Boot_Sector *Boot)				///////////Boot_sector/////////
 		Boot->FAT_type[i]=fgetc(fp);	
 	}
 }
-void displayBoot(Boot_Sector Boot){					/////////Boot_sector/////////
+void displayBoot(Boot_Sector Boot){					//////////Boot_sector////
 	printf("\nByte_per_sec:%d\n",Boot.byte_per_sec);
 	printf("Sec_per_clus:%d\n",Boot.sec_per_clus);
 	printf("Resv_sec_cnt:%d\n",Boot.resv_sec_cnt);
@@ -119,7 +109,7 @@ void displayBoot(Boot_Sector Boot){					/////////Boot_sector/////////
 	printf("\n");
 	//printf("%mark:s\n",Boot.mark);
 }////////////////////////////////////////////////////
-//////////////Boot_sector-end///////////////////////////////////////////////////
+//////////////Boot_sector-end///////////////////////////////////////////////
 
 /* This funstion get value of FAT entry*/
 uint16_t GetFatValue12(uint16_t PrsClus) /*for FAT12*/{
@@ -146,8 +136,8 @@ uint16_t GetFatValue12(uint16_t PrsClus) /*for FAT12*/{
     return NewVal;
 }
 
-//////////////////entry short - start//////////////////////////////////////////////////////////////
-void countEntryShort(int offset,int *cnt_entr_sh){
+//////////////////entry short - start//////////////////////////////////////////////////////////////////////
+void countEntryShort(int offset,int *cnt_entr_sh){								//////////entry short/////
 	*cnt_entr_sh=0;
 	//printf("cnt:%d\n",*cnt_entr_sh);
 	//printf("offset:%d\n",offset);
@@ -170,8 +160,7 @@ void countEntryShort(int offset,int *cnt_entr_sh){
 	}
 	//printf("cnt:%d\n",*cnt_entr_sh);
 }
-
-Entry_Short * readEntryShort(int offset,int *cnt_entr_sh){	 /////entry short/////////
+Entry_Short * readEntryShort(int offset,int *cnt_entr_sh){						/////////entry short/////
 	int index_entr=0;
 	int cnt_clus_root=Boot->root_entr_cnt*32/512;//number of clusters in root
 	int entr_locat=0,flag;
@@ -201,7 +190,7 @@ Entry_Short * readEntryShort(int offset,int *cnt_entr_sh){	 /////entry short////
 	}
 	return entr_sh;
 }
-void getShortEntry(Entry_Short *entr_sh,int offset){					 /////entry short////////
+void getShortEntry(Entry_Short *entr_sh,int offset){							////////entry short/////
 	int i;
 	Shift_Offset(offset+ENTRY_FILE_NAME);
 	//printf("i:%d %s %d\n",i,entr_sh->name,strlen(entr_sh->name));
@@ -229,7 +218,7 @@ void getShortEntry(Entry_Short *entr_sh,int offset){					 /////entry short//////
 		entr_sh->first_clus_low+=(fgetc(fp)<<(8*i));	
 	}	
 }
-void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int i){		 /////entry short///////
+void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int i){				///////entry short/////
 	for(i;i<cnt_entr_sh;i++){
 		printf("\nFile dir %d\n",i);
 		printf("Name:");
@@ -240,9 +229,7 @@ void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int i){		 /////entry
 		//printf("start cluster:%d\n",entr_sh[i].first_clus_low);
 	}
 }
-
-/////entryNode
-void countEntryShortClus(int offset,int *cnt_entr_sh,int locat_clus){
+void countEntryShortClus(int offset,int *cnt_entr_sh,int locat_clus){			//////entry short/////
 	*cnt_entr_sh=0;
 	int entr_locat=0,flag;
 	int temp=1;
@@ -262,8 +249,7 @@ void countEntryShortClus(int offset,int *cnt_entr_sh,int locat_clus){
 		locat_clus=GetFatValue12(locat_clus);///FAT12******************************************
 	}while(locat_clus!=FAT12_EOF);///FAT12******************************************	
 }
-
-Entry_Short * readEntrInClusNode(int offset, int *cnt_entr_sh,int locat_clus)			////entry short//////
+Entry_Short * readEntrInClus(int offset, int *cnt_entr_sh,int locat_clus)		/////entry short/////
 {
 	int index_entr=0;
 	int cnt_clus_root=Boot->root_entr_cnt*32/512;//number of clusters in root
@@ -292,77 +278,63 @@ Entry_Short * readEntrInClusNode(int offset, int *cnt_entr_sh,int locat_clus)			
 	}else{
 		printf("File is empty\n");
 		entr_sh=NULL;
-	}
-		
+	}	
 	return entr_sh;
 }
-//////////////////entry short - end////////////////////////////////////////////////////////
+//////////////////entry short - end////////////////////////////////////////////////////////////////
 
-
-/////////////////////////DATA -start////////////////////////////////////////////////////////////
-void callBootSector(){											//////////////DATA/////////////
+/////////////////////////DATA -start////////////////////////////////////////////////////
+void callBootSector(){											//////////////DATA/////
 	Boot=readBootSector();
 	displayBoot(*Boot);
 }
-
-int getDataFile(Entry_Short *entr_sh,int index){				//////////////DATA/////////	
+int getDataFile(Entry_Short *entr_sh,int index){				/////////////DATA/////
 	printf("\n\nName:");
 	print_Str(&entr_sh[index].name[0],ENTRY_FILE_NAME_BYTE);
 	print_Str(&entr_sh[index].ext[0],ENTRY_FILE_NAME_EXT_BYTE);
 	printf("\n");
 	
-	int check=((entr_sh[index]).attr==0x10);
-	if(check){
-		printf("--->folder has been opened!\n");
-		return 0;
-	}
 	int locat_clus=(entr_sh[index]).first_clus_low;
 	do{
 		int i;
 		int offset=((locat_clus-2)+0x21)*0x200;//data location
-		//printf("\nofset:%d\n",offset);
 		Shift_Offset(offset);
 		for(i=0;i<(512*Boot->sec_per_clus);i++){
 			printf("%c",fgetc(fp));
 		}
 		locat_clus=GetFatValue12(locat_clus);///FAT12******************************************
-		//printf("\nlocat_clus:%p\n",locat_clus);
 	}while(locat_clus!=FAT12_EOF);///FAT12*****************************************************
 	return 1;
 }
-
-void readDataNode(){											////////////DATA/////////
+void readDataNode(){											////////////DATA/////
 	callBootSector();			
 	initList();
-		
-	int cnt_entr_sh;
-
+	
+	int cnt_entr_sh
 	int offset=(Boot->resv_sec_cnt+Boot->sec_per_FAT*Boot->num_FAT)*0x200;//root directory location
 	int cnt_clus_root=Boot->root_entr_cnt*32/512;//number of clusters in root
 	
 	Entry_Short *entr_sh=readEntryShort(offset,&cnt_entr_sh);//cnt_entr_sh=7
-	displayEntryShort(&entr_sh[0],cnt_entr_sh,0);//hient thi root
-		
-	checkFileNode(&entr_sh[0],cnt_entr_sh);	
+	displayEntryShort(&entr_sh[0],cnt_entr_sh,0);//hient thi root	
+	checkFile(&entr_sh[0],cnt_entr_sh);	
 }
-
-void checkFileNode(Entry_Short *entr_sh,int cnt_entr_sh){								////////////DATA////////
+void checkFile(Entry_Short *entr_sh,int cnt_entr_sh){			///////////DATA/////
 	int check;
 	int temp;
 	char input;
 	int offset_clus;
+	
 	int cnt_entr_sh_sub=cnt_entr_sh;
+	Entry_Short *entr_sh_sub=entr_sh;
 	int cnt_entr_cpy;
 	cnt_entr_cpy=cnt_entr_sh_sub;
-	Entry_Short *entr_sh_sub=entr_sh;
 	
 	int status=0;
 	while(1)
-	{//open while
-		printf("\n////////////*****__*****///////////");
-		if(status==1)//status==1 --- open
+	{										//open while
+		printf("\n//////////////////////////////**********__**********//////////////////////////////\n");
+		if(status==1)						//status==1 --- open
 		{
-			//displayEntryShort(&entr_sh_sub[0],cnt_entr_cpy,0);
 			printf("\nSelect the function by entering the character in front of the function:\n");
 			printf("\tx. Out program\n");
 			printf("\tb. Back to previous folder\n");
@@ -374,67 +346,66 @@ void checkFileNode(Entry_Short *entr_sh,int cnt_entr_sh){								////////////DAT
 			}while(input!='x'&&input!='b');
 			
 			if(input=='x')
-			{//temp=='x' --- open
+			{								//temp=='x' --- open
 				return;
-			}//temp=='x' --- close
+			}								//temp=='x' --- close
 			else if(input=='b')
-			{//temp=='b' --- open				
-				status=0;//resert status
-				displayEntryShort(&entr_sh_sub[0],cnt_entr_cpy,0);//hien thi lai folder truoc do 
-			}//temp=='b' --- close			
-		}//status==1 --- close
+			{								//temp=='b' --- open		 
+				status=0;														//resert status
+				displayEntryShort(&entr_sh_sub[0],cnt_entr_cpy,0);				//display folder before
+			}								//temp=='b' --- close	  
+		}									//status==1 --- close
 		else
-		{//status==0 --- open
+		{									//status==0 --- open
 			printf("\nSelect the function or open the file by entering the character in front of the function or file:\n");	
-			printf("\tX. Out program\n");
-			(isEmpty()!=1)?printf("\tB. Back to previous folder\n"):printf("");	
+			printf("\tx. Out program\n");
+			(isEmpty()!=1)?printf("\tb. Back to previous folder\n"):printf("");	//Back file if not empty list
 			do{
 				printf("Enter your selection:");
 				scanf("%c",&input);
 				fflush(stdin);
-				((isEmpty()==1)&&(input==98))?(input=47):printf("");
+				((isEmpty()==1)&&(input==98))?(input=47):printf("");			//You can not input 'b' if not empty list
 			}while((input<48||((input>(cnt_entr_sh_sub+48))&&(input!='x'&&input!='b'))));
 			//ascii: 	b-98		x-120	number + 48
-			if(input=='x')//if temp
+			if(input=='x')					//input=='x' --- open
 			{
 				return;
-			}
-			else if(input=='b')//if temp
+			}								//input=='x' --- close
+			else if(input=='b')				//input=='b' --- open
 			{
-				removeNode();
-				if(isEmpty()){
-					cnt_entr_sh_sub=cnt_entr_sh;
+				removeNode();													//remove node first
+				if(isEmpty()){													//if list isEmpty callback to entryRoot 
+					cnt_entr_sh_sub=cnt_entr_sh;								
 					entr_sh_sub=entr_sh;
 					displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
 					cnt_entr_cpy=cnt_entr_sh_sub;
-				}else{
-					offset_clus=((head->entr_sh.first_clus_low-2)+0x21)*0x200+32*2;//subfile location
-					entr_sh_sub=readEntrInClusNode(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);		
+				}else{															//else callback to node first in list
+					offset_clus=((head->entr_sh.first_clus_low-2)+0x21)*0x200+32*2;
+					entr_sh_sub=readEntrInClus(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);		
 					displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
-					cnt_entr_cpy=cnt_entr_sh_sub;
+					cnt_entr_cpy=cnt_entr_sh_sub;								//copy count entry scaned
 				}
-			}
-			else//if temp
+			}								//input=='b' 	--- close
+			else							//input defalse --- open
 			{
-				temp=(int)input-48;
-				check=(entr_sh_sub[temp].attr!=0x10);
-				if(check){
-					status=getDataFile(&entr_sh_sub[0],temp);
-				}else{
+				temp=(int)input-48;												//swap char to int
+				check=(entr_sh_sub[temp].attr!=0x10);							//check attribute file
+				if(check){					//check==1 		--- open
+					status=getDataFile(&entr_sh_sub[0],temp);					//read data
+				}else{						//check defalse --- open	
 					//int cnt_entr_sh_sub=0;
-					createNode(&entr_sh_sub[temp]);
-					offset_clus=((head->entr_sh.first_clus_low-2)+0x21)*0x200+32*2;//subfile location
-					entr_sh_sub=readEntrInClusNode(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);		
+					createNode(&entr_sh_sub[temp]);								//create node in first list
+					offset_clus=((head->entr_sh.first_clus_low-2)+0x21)*0x200+32*2;
+					entr_sh_sub=readEntrInClus(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);		
 					displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
-					cnt_entr_cpy=cnt_entr_sh_sub;
-				}	
-			}//if temp	
-		}//status==0 --- close	
-	}//close white
+					cnt_entr_cpy=cnt_entr_sh_sub;								//copy count entry scaned
+				}							//check defalse --- close					
+			}								//input defalse --- close	
+		}									//status==0 	--- close	
+	}										//close while
 	
 
 }
-
-/////////////////////////DATA -end///////////////////////////////////////////////////
+/////////////////////////DATA - end////////////////////////////////////////////////
 
 #endif
