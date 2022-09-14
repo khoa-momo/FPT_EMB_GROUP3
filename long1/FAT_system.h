@@ -4,7 +4,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdint.h>
- 
+#include<string.h>
+
 //------------------------Important Boot Feature------------------------
 //File System Identifier FAT_TYPE - 8 BYTE
 #define BOOT_FAT_TYPE			(0x36U)

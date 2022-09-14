@@ -65,7 +65,7 @@ void displayBoot(Boot_Sector Boot){
 
 //////////////////Root: readEntryShort////////////////////////
 Entry_Short *readEntryShort(int offset,int size_root,int *cnt_entr_sh){
-	printf("\n\nReadEntryShort\n");
+	printf("\nReadEntryShort\n");
 	Entry_Short *entr_sh;
 	int entr_locat = 0, flag;
 	int temp = 1;
@@ -74,7 +74,7 @@ Entry_Short *readEntryShort(int offset,int size_root,int *cnt_entr_sh){
 	while(entr_locat<size_root && temp!=0){
 		
 		//offset:0x2600
-		/*//Find Main Entry - Since Sub Entry stand before Main entry
+		/*Find Main Entry - Since Sub Entry stand before Main entry
 		//0x0f -> Sub Entry/Long Entry*/
 		do{
 			entr_locat++;
