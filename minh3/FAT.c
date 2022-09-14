@@ -172,16 +172,22 @@ File *ScanRoot(FILE *fp){
 	printf("ScanRoot\n");
 	//1. BOOT
     Boot boot = Read_Boot(fp);
-    int RootSector = boot.numfat*boot.secperfat+boot.secbeforefat;
-    int pointer = RootSector*0x200;
-    int c = 0;
-    //dem so file con 
-    int m = count_Subfolder(0x2600,fp);
-    File *f = (File*)malloc(m*sizeof(File));
-    while(ReadnByte(1,pointer,fp)!=0){  
     
-	//bo qua entryphu
-		while(ReadnByte(1,pointer+0x0b,fp)==0x0f){
+    //Find Root Sector
+    int RootSector = boot.numfat*boot.secperfat+boot.secbeforefat;
+    //Root pointer
+    int pointer = RootSector*0x200;
+    printf("\n\nPointer: %x\n\n",pointer);
+    
+    //1.Count Entry -> entry_cnt
+    int entry_cnt = count_Entry(pointer,fp);
+    //Make an array struct of Entry
+    File *f = (File*)malloc(entry_cnt*sizeof(File));
+    
+    int c = 0;
+    //Read Root
+    while(ReadnByte(1,pointer,fp)!=0){  
+		while(ReadnByte(1,pointer+0x0b,fp) == 0x0f){//Pass Sub-Entry
 		    pointer += 0x20;
 		}  
 		f[c].name = Hex2Char(8,pointer+Filename,fp);
@@ -196,8 +202,8 @@ File *ScanRoot(FILE *fp){
          
 		printf("\n%d:%s - ",c,f[c].name);
 		
-		printf("Time Create: "); readTime(f[c].timeCreate);
-        printf("Date Create: "); readDate(f[c].dateCreate);
+//		printf("Time Create: "); readTime(f[c].timeCreate);
+//      printf("Date Create: "); readDate(f[c].dateCreate);
         printf("\n\t\t");
         printf("Time Update: "); readTime(f[c].timeUpdate);
         printf("Date Update: "); readDate(f[c].dateUpdate);
@@ -206,14 +212,17 @@ File *ScanRoot(FILE *fp){
 		pointer+=0x20;
 		c++;
     }
+    
+    /*Array struct of Entry*/
     return f;
 }
 
-int count_Subfolder(int pointer,FILE *fp){
+/*Count Sub-Entry and Folder Root*/
+int count_Entry(int pointer,FILE *fp){
 	printf("count_Subfolder\n");
     int c = 0;
     while(ReadnByte(1,pointer,fp)!=0){  
-        // bo qua entry
+        //Check attribute 0x0b -> if equal 0x0f -> Sub-Entry -> pass
         while(ReadnByte(1,pointer+0x0b,fp)==0x0f){
         	pointer+=0x20;
         }  
@@ -223,16 +232,18 @@ int count_Subfolder(int pointer,FILE *fp){
     return c;
 }
 
-File *ScanFolder(File *f,FILE *fp){
+File *Scan_Sub_Folder(File *f,FILE *fp){
 	printf("ScanFolder\n");
     int offset = 0x20;
     int pointer = (f->FirstClus+0x1f)*0x200+0x40;
     int c = 0;
-    //dem so file con 
-    int m = count_Subfolder(pointer,fp);
+    
+    //Count Entry of the SUB-FOLDER
+    int m = count_Entry(pointer,fp);
     File *subf = (File*)malloc(m*sizeof(File));
     while(ReadnByte(1,pointer,fp)!=0){  
-    // bo qua entryphu 
+    
+	// bo qua entryphu 
         subf[c].name = Hex2Char(8,pointer+Filename,fp);
         subf[c].extension = Hex2Char(3,pointer+NameExten,fp);
         subf[c].FirstClus = ReadnByte(2,pointer+FisrtClus,fp);  
@@ -244,8 +255,8 @@ File *ScanFolder(File *f,FILE *fp){
         subf[c].dateUpdate = ReadnByte(2,pointer+DateUpdate,fp);  
         
         printf("\n%d:%s - ",c,subf[c].name);
-		printf("Time Create: "); readTime(subf[c].timeCreate);
-        printf("Date Create: "); readDate(subf[c].dateCreate);
+//		printf("Time Create: "); readTime(subf[c].timeCreate);
+//        printf("Date Create: "); readDate(subf[c].dateCreate);
         printf("\n\t\t");
         printf("Time Update: "); readTime(subf[c].timeUpdate);
         printf("Date Update: "); readDate(subf[c].dateUpdate);
@@ -256,6 +267,27 @@ File *ScanFolder(File *f,FILE *fp){
     return subf;
 }
 
+
+
+void Go2Folder_File(FILE *fp,List *l,File *f){
+	printf("Go2Folder_File\n");
+    ///Them Node chua File vao List
+    int index;
+    printf("Nhap so thu tu file can doc:");
+    scanf("%d", &index);
+    Node *node = CreatNode(&f[index]);
+    AddNode(l,node);
+    /// Folder///////////////// /////
+    if(f[index].extension[0]==' '){
+        Go2Folder_File(fp, l, Scan_Sub_Folder(&f[index],fp));
+    }
+    else{
+        /// hien thi data
+    }
+    
+}
+
+/*Time Date Reading*/
 void readDate(int raw_date){
 	int mask_day = 0x001f;
 	int mask_month = 0x01e0;
@@ -279,24 +311,4 @@ void readTime(int raw_time){
 	
 	printf("Time(hh:mm:ss): %d:%d:%d   ",hr,min,sec);
 }
-
-
-void Go2Folder_File(FILE *fp,List *l,File *f){
-	printf("Go2Folder_File\n");
-    ///Them Node chua File vao List
-    int index;
-    printf("Nhap so thu tu file can doc:");
-    scanf("%d", &index);
-    Node *node = CreatNode(&f[index]);
-    AddNode(l,node);
-    /// Folder///////////////// /////
-    if(f[index].extension[0]==' '){
-        Go2Folder_File(fp,l,ScanFolder(&f[index],fp));
-    }
-    else{
-        /// hien thi data
-    }
-    
-}
-
 

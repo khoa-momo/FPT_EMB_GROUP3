@@ -4,11 +4,11 @@
 // {
 //     ScanRoot(fp);
 // }
-void HAL_Access2File(FILE *fp,int index,List *l)
-{
+void HAL_Access2File(FILE *fp,int index,List *l){
     File *file=ScanRoot(fp);
     Go2Folder_File(fp,l,file,index);
 }
+
 // void main()
 // {
 //     File *fp=fopen("floppy.img","r");

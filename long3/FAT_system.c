@@ -154,7 +154,7 @@ void checkFile(Entry_Short **entr_sh, int *cnt_entr_sh, int i){
 	//Scan through all ROOT ENTRY 
 	for(i; i<(*cnt_entr_sh); i++){
 		//IF ENTRY IS FOLDER
-		int check = ((entr_sh[0]+i) -> attr==0x10);
+		int check = ((entr_sh[0]+i)->attr == 0x10);
 		if(check){	
 //			printf("Name:");
 //			print_Str((entr_sh[i]) -> name[0],ENTRY_FILE_NAME_BYTE);
@@ -224,7 +224,7 @@ uint16_t GetFatValue12(uint16_t PrsClus) /*for FAT12*/{
   	
 void readData(){
 	printf("readData\n");
-	//1. Boot
+	//I. Boot
 	Boot = readBootSector();
 	displayBoot(*Boot);
 	
@@ -256,7 +256,7 @@ void readData(){
 }
 
 
-int getDataFile(Entry_Short *entr_sh,int index){
+int getDataFile(Entry_Short *entr_sh, int index){
 	printf("getDataFile\n");
 	printf("\n\nName:");
 	print_Str(&entr_sh[index].name[0],ENTRY_FILE_NAME_BYTE);
@@ -278,6 +278,8 @@ int getDataFile(Entry_Short *entr_sh,int index){
 			printf("%c",fgetc(fp));
 		}
 		locat_clus=GetFatValue12(locat_clus);///FAT12******************************************
+		
+		printf("\n\n\n ~~~~~~~ locat_clus: %x ~~~~~~~~\n\n\n",locat_clus);
 		//printf("\nlocat_clus:%p\n",locat_clus);
 	}while(locat_clus!=FAT12_EOF);///FAT12*****************************************************
 	return 1;

@@ -6,7 +6,8 @@ int main(){
     //Scan_Folder(&file[5],fp,l);
     //Scan_Folder();
      
-    List *l;
+    //List here is a struct for LL 
+    List *l; //a node of 'List' - 1st Node?
     CreatList(l);
      
     File *f = ScanRoot(fp);
