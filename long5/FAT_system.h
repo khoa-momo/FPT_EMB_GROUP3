@@ -124,8 +124,17 @@ typedef struct Entr_Main_Root{
 	char attr;				//0x0b - File attribute (1B)
 	int first_clus_hig;		//0x14 - Start cluster number of file - HIGH (2B)
 	//char reserver[10];
-	char time[2];			//0x16 - Time last updated (2B)
-	char date[2];			//0x18 - Date last updated (2B)
+//	char time[2];			//0x16 - Time last updated (2B)
+//	char date[2];			//0x18 - Date last updated (2B)
+	
+	//timecreated or last update 
+	//hhhhhmmmmmmxxxxx
+	//yyyyyyymmmmddddd
+	//int timeCreate; 
+	//int dateCreate;  
+    int timeUpdate; 		//0x16 - Time last updated (2B)
+    int dateUpdate;  		//0x18 - Date last updated (2B)
+    
 	int first_clus_low;		//0x1a - Start cluster number of file - LOW (2B) 
 	//long size;
 	//link

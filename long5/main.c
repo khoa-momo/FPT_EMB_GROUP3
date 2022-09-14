@@ -1,9 +1,8 @@
 #include"FAT_system.h"
 #include"FAT_system.c"
 
-int main()
-{
-	fp=fopen("floppy_2.img","rb");
+int main(){
+	fp = fopen("floppy.img","rb");
 	
 //	int i;
 //	Shift_Offset(0x300);
@@ -11,8 +10,9 @@ int main()
 //		printf("%x-",fgetc(fp));
 //	}
 
-	//readData();
+	//readData(); 
  	readDataNode();
-	//fclose(fp);
+	fclose(fp);
+	
 	return 0;
 }
