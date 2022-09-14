@@ -16,17 +16,16 @@ bool isEmpty(){							//check list empty						/////linklist//////
 
 void createNode(Entry_Short *entr_sh){	//create node with data					////linklist//////
 	printf("\n### createNode ###\n");		
-	Node* node=(Node*)calloc(1,sizeof(Node));
+	Node *node = (Node*)calloc(1,sizeof(Node));
 	addNodeToList(node);
 	int i;
-	for(i=0;i<ENTRY_FILE_NAME_BYTE;i++)
-	{
+	for(i=0;i<ENTRY_FILE_NAME_BYTE;i++){
 		(node->entr_sh).name[i]=entr_sh[0].name[i];
 	}
 	(node->entr_sh).first_clus_low=entr_sh[0].first_clus_low;
 }
 
-void addNodeToList(Node*node){			//add Node to list						////linklist/////
+void addNodeToList(Node *node){			//add First Node to list						////linklist/////
 	printf("\n### addNodeToList ###\n");		
 	if(isEmpty()){
 		printf("empty\n");
@@ -42,14 +41,17 @@ void addNodeToList(Node*node){			//add Node to list						////linklist/////
 
 void removeNode(){						//delete node
 	printf("\n### removeNode ###\n");							////linklist////
-	Node*last_Node = head;
+	Node *last_Node = head;
+	//List empty
 	if(isEmpty()){
 		printf("empty\n");
 	}
+	//List has 1 Node only
 	else if(head->next==NULL){
 		free(last_Node);
 		head=NULL;		
 	}
+	//List has >1 Node only
 	else{	
 		head=head->next;	
 	}
@@ -423,7 +425,7 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 			printf("\nSelect the function or open the file by entering dir number:\n");	
 			printf("\tx. Out program\n");
 			//Back file if not empty list
-			(isEmpty()!=1)?printf("\tb. Back to previous folder\n"):printf("???");	
+			(isEmpty()!=1)?printf("\tb. Back to previous folder\n"):printf("");	
 			
 			do{
 				printf("Enter your selection: ");
