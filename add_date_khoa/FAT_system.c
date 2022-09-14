@@ -122,6 +122,7 @@ Boot_Sector *readBootSector(){						//Boot_sector//
 /*--------------------------- III/ FAT - START ---------------------------*/
 /* This funstion get value of FAT entry*/
 uint16_t GetFatValue12(uint16_t PrsClus)/*for FAT12*/{
+	printf("\n### GetFatValue12 ###\n");
     unsigned char DataOfIndex[2]; /* array save 2 hex of FAT*/
     uint16_t NewVal;
     uint16_t HIG;
@@ -192,13 +193,19 @@ void getShortEntry(Entry_Short *entr_sh, int offset){							//entry short//
 
 void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int i){				//entry short//
 	for(i; i<cnt_entr_sh; i++){
-		printf("\n--------------------------- File dir %d ---------------------------\n", i);
-		printf("File Name: ");
+		printf("\n------------------------------------ File dir %d ------------------------------------\n", i);
+		//printf("%d ", entr_sh[i].attr);
+		if(entr_sh[i].attr == 0x0){
+			printf("File Name: ");
+		} 
+		else if(entr_sh[i].attr == 0x10){
+			printf("Folder Name: ");
+		}
 		print_Str(&entr_sh[i].name[0],ENTRY_FILE_NAME_BYTE);
 		print_Str(&entr_sh[i].ext[0],ENTRY_FILE_NAME_EXT_BYTE); 
-		 
-		printf("\tTime Update: "); readTime(entr_sh[i].timeUpdate); 
-        printf("\n\t\t\tDate Update: "); readDate(entr_sh[i].dateUpdate);
+		
+		printf("\t\tTime Update: "); readTime(entr_sh[i].timeUpdate); 
+        printf("\n\t\t\t\tDate Update: "); readDate(entr_sh[i].dateUpdate);
         
 		printf("\n");
 		//printf("%atribute:d\n",entr_sh[i].attr);
@@ -211,12 +218,11 @@ void countEntryShort(int offset, int *cnt_entr_sh){								//entry short//
 	printf("\n##### CountEntryShort #####\n");
 	printf("Boot->root_entr_cnt: %d\n", Boot->root_entr_cnt);
 	//printf("cnt:%d\n",*cnt_entr_sh);
-	//printf("offset:%d\n",offset);
-	
+	//printf("offset:%d\n",offset); 
 	*cnt_entr_sh = 0;
 	//number of clusters in root
 	int cnt_clus_root = Boot->root_entr_cnt*32/512;
-	int entr_locat = 0,flag;
+	int entr_locat = 0, flag;
 	int temp = 1;
 	//printf("check:%d\n",entr_locat<(cnt_clus_root*16)&&temp!=0);
 	printf("cnt_clus_root*16: %d\n", cnt_clus_root*16);
@@ -229,8 +235,7 @@ void countEntryShort(int offset, int *cnt_entr_sh){								//entry short//
 		}while((flag=fgetc(fp))==0x0f);
 		if(temp!=0){
 			(*cnt_entr_sh)++;
-			//printf("cnt:%d\n",*cnt_entr_sh);
-			
+			//printf("cnt:%d\n",*cnt_entr_sh); 
 		}
 	}
 	//printf("cnt:%d\n",*cnt_entr_sh);
@@ -359,6 +364,7 @@ int getDataFile(Entry_Short *entr_sh, int index){				//DATA//
 			printf("%c",fgetc(fp));
 		}
 		locat_clus = GetFatValue12(locat_clus);///FAT12 
+		printf("\n~~~~~~~~~ Locat_clus: %x ~~~~~~~~~\n",locat_clus);
 	}while(locat_clus!=FAT12_EOF);///FAT12 
 	return 1;
 }
@@ -386,8 +392,10 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 	
 	int status = 0;
 	while(1){										//open while
-		printf("\n//////////////////////////////**********__**********//////////////////////////////\n");
-		if(status==1){						//status==1 --- open
+		printf("\n//////////////////////////////**********----**********//////////////////////////////\n");
+		
+		//status==1 --- open
+		if(status==1){						
 			printf("\nSelect the function by entering dir number:\n");
 			printf("\tx. Out program\n");
 			printf("\tb. Back to previous folder\n");
@@ -395,36 +403,40 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 			do{
 				printf("Enter your selection:");
 				scanf("%c",&input);
-				fflush(stdin);
-			}while(input!='x'&&input!='b');
+				//fflush(stdin);
+			}while(input!='x' && input!='b');
 			
-			if(input=='x'){//temp=='x' --- open 
-				return;//temp=='x' --- close
-			}								
-			else if(input=='b'){//temp=='b' --- open 
-				status=0;														//resert status
-				displayEntryShort(&entr_sh_sub[0],cnt_entr_cpy,0);				//display folder before
-			}//temp=='b' --- close	  
+			//temp=='x': loop out of program
+			if(input=='x'){
+				return;
+			}
+			//temp=='b': go back						
+			else if(input=='b'){
+				status = 0;														//resert status
+				displayEntryShort(&entr_sh_sub[0], cnt_entr_cpy, 0);			//display folder before
+			} 
 		}//status==1 --- close
 		 
-		//ROOT
-		else{									//status==0 --- open
+		 
+		//status==0 --- open
+		else{									
 			printf("\nSelect the function or open the file by entering dir number:\n");	
 			printf("\tx. Out program\n");
-			(isEmpty()!=1)?printf("\tb. Back to previous folder\n"):printf("");	//Back file if not empty list
+			//Back file if not empty list
+			(isEmpty()!=1)?printf("\tb. Back to previous folder\n"):printf("???");	
+			
 			do{
-				printf("Enter your selection:");
+				printf("Enter your selection: ");
 				scanf("%c",&input);
 				fflush(stdin);
 				((isEmpty()==1)&&(input==98))?(input=47):printf("");			//You can not input 'b' if not empty list
 			}while((input<48||((input>(cnt_entr_sh_sub+48))&&(input!='x'&&input!='b'))));
 			//ascii: 	b-98		x-120	number + 48
-			if(input=='x')					//input=='x' --- open
-			{
+			
+			if(input=='x')	{				//input=='x' --- open
 				return;
 			}								//input=='x' --- close
-			else if(input=='b')				//input=='b' --- open
-			{
+			else if(input=='b'){				//input=='b' --- open
 				removeNode();													//remove node first
 				if(isEmpty()){													//if list isEmpty callback to entryRoot 
 					cnt_entr_sh_sub=cnt_entr_sh;								
@@ -437,9 +449,9 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 					displayEntryShort(&entr_sh_sub[0],cnt_entr_sh_sub,0);
 					cnt_entr_cpy=cnt_entr_sh_sub;								//copy count entry scaned
 				}
-			}								//input=='b' 	--- close
-			else							//input defalse --- open
-			{
+			}
+											//input=='b' 	--- close
+			else{							//input defalse --- open
 				temp=(int)input-48;												//swap char to int
 				check=(entr_sh_sub[temp].attr!=0x10);							//check attribute file
 				if(check){					//check==1 		--- open
