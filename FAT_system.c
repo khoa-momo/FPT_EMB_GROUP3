@@ -310,7 +310,7 @@ void readDataNode(){											////////////DATA/////
 	callBootSector();			
 	initList();
 	
-	int cnt_entr_sh
+	int cnt_entr_sh;
 	int offset=(Boot->resv_sec_cnt+Boot->sec_per_FAT*Boot->num_FAT)*0x200;//root directory location
 	int cnt_clus_root=Boot->root_entr_cnt*32/512;//number of clusters in root
 	

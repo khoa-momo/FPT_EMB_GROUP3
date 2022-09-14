@@ -1,9 +1,9 @@
 #include"FAT_system.h"
-//#include"FAT_system.c"
+#include"FAT_system.c"
 
 int main()
 {
-	fp=fopen("floppy_2.img","rb");
+	fp=fopen("floppy.img","rb");
 	
 //	int i;
 //	Shift_Offset(0x300);
