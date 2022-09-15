@@ -1,77 +1,59 @@
-#ifndef	__HAL_C__
-#define	__HAL_C__
-#include"FAT_system.c"
+#ifndef ___HAL_C___
+#define ___HAL_C___
 
-/*--------------------------- I/ LINK LIST - START ---------------------------*/
-void initList(){						//create list							/////linklist///////
-	head = NULL;
-}
+#include"HAL.h"
 
-bool isEmpty(){							//check list empty						/////linklist//////
-	if(head==NULL){
-		return true;
-	}
-	return false;
-}
-
-void createNode(Entry_Short *entr_sh){	//create node with data					////linklist//////
-	printf("\n### createNode ###\n");		
-	Node *node = (Node*)calloc(1,sizeof(Node));
-	//1.Add in an empty node
-	addNodeToList(node);
-	int i;
-	//2.Fill attr: name & first_clus_low to that node
-	for(i=0;i<ENTRY_FILE_NAME_BYTE;i++){
-		(node->entr_sh).name[i]=entr_sh[0].name[i];
-	}
-	(node->entr_sh).first_clus_low=entr_sh[0].first_clus_low;
-	printLinkedList(head);
-}
-
-//add First Node to list
-void addNodeToList(Node *node){													////linklist/////
-	printf("\n### addNodeToList ###\n");		
-	if(isEmpty()){
-		printf("empty\n");
-		head=node;
-		head->next=NULL;
-	}
-	else{
-		printf("not empty\n");
-		node->next=head;
-		head=node;
-	}
-}
-
-void removeNode(){						//delete node
-	printf("\n### removeNode ###\n");							////linklist////
-	Node *last_Node = head;
-	//List empty
-	if(isEmpty()){
-		printf("empty\n");
-	}
-	//List has 1 Node only
-	else if(head->next==NULL){
-		free(last_Node);
-		head=NULL;		
-	}
-	//List has >1 Node only
-	else{	
-		head=head->next;	
-	}
-	printLinkedList(head);
-}
-/*--------------------------- LINK LIST - END --------------------------*/
-
-
-/*--------------------------- HAL - START ---------------------------*/
-void callBootSector(){											//DATA//
+void callBootSector(){											
 	Boot = readBootSector();
 	displayBoot(*Boot);
 }
 
-void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
-	printf("\n### CheckFile ###\n");
+FAT checkFAT(){
+	FAT fat;
+	if((Boot->FAT_type[3]=='1')&&(Boot->FAT_type[4]=='2')){
+		fat=FAT12;
+	}else if((Boot->FAT_type[3]=='1')&&(Boot->FAT_type[4]=='6')){
+		fat= FAT16;
+	}else{
+		fat=FAT32;
+	}
+	return fat;
+}
+
+uint16_t GetFatValue( uint16_t PrsClus){
+	uint16_t addrFAT;
+	if(checkFAT()==FAT12){
+		addrFAT= GetFatValue12(PrsClus);
+	}else if(checkFAT()==FAT16){
+		addrFAT= GetFatValue16(PrsClus);
+	}
+	return addrFAT;
+}
+
+
+/*--------------------------- V/ DATA - START -------------------------*/
+int getDataFile(Entry_Short *entr_sh, int index){				/*DATA*/
+	printf("\n\n### GetDataFile ###\n");
+	printf("\nFile-opening:");
+	print_Str(&entr_sh[index].name[0],ENTRY_FILE_NAME_BYTE);
+	print_Str(&entr_sh[index].ext[0],ENTRY_FILE_NAME_EXT_BYTE);
+	printf("\n");
+	
+	int locat_clus = (entr_sh[index]).first_clus_low;
+	do{
+		int i;
+		int offset = ((locat_clus-2)+bef_data_sector)*Boot->byte_per_sec;//data location
+		Shift_Offset(offset);
+		prtByteFile(Boot->byte_per_sec*Boot->sec_per_clus);
+		locat_clus = GetFatValue(locat_clus);///FAT12 
+	}while(locat_clus!=FAT12_EOF);///FAT12 
+	return 1;
+}
+/*-------------------------------------------------------------------*/
+
+
+/*--------------------------- VI/ MAIN - START -----------------------*/
+void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			/*DATA*/
 	int check;
 	int temp;
 	char input;
@@ -83,11 +65,9 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 	
 	int status = 0;
 	while(1){										//open while
-		printf("\n//////////////////////////////**********----**********//////////////////////////////\n");
-		
+		printf("\n\n////////////////////////////////////////=======*****=======\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
 		//status==1 --- open
-		if(status==1){			
-			printf("\n[[[status==1]]]\n");				
+		if(status==1){							
 			printf("\nSelect the function by entering dir number:\n");
 			printf("\tx. Out program\n");
 			printf("\tb. Back to previous folder\n");
@@ -107,12 +87,10 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 				status = 0;														//resert status
 				displayEntryShort(&entr_sh_sub[0], cnt_entr_cpy, 0);			//display folder before
 			} 
-		}//status==1 --- close
-		 
+		}//status==1 --- close	 
 		//status==0 --- open
 		else{		
-			/*I/ Status 0, Get input*/			
-			printf("\n[[[status==0]]]\n");				
+			/*I/ Status 0, Get input*/							
 			printf("\nSelect the function or open the file by entering dir number:\n");	
 			printf("\tx. Out program\n");
 			//Back file if not empty list
@@ -123,7 +101,7 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 				scanf("%c",&input);
 				fflush(stdin);
 				((isEmpty()==1)&&(input==98))?(input=47):printf("");			//You can not input 'b' if not empty list
-			}while((input<48||((input>(cnt_entr_sh_sub+48))&&(input!='x'&&input!='b'))));
+			}while((input<48||((input>(cnt_entr_cpy+47))&&(input!='x'&&input!='b'))));
 			//ascii: 	b-98		x-120	number + 48
 			
 			/*II/ Processing input*/
@@ -139,7 +117,6 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 				//2.2 - if list isEmpty callback to entryRoot 
 				if(isEmpty()){	
 					//Show root entry
-					printf("\n(((Back to root)))\n");
 					
 					cnt_entr_sh_sub=cnt_entr_sh;								
 					
@@ -148,8 +125,7 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 					cnt_entr_cpy=cnt_entr_sh_sub;
 				}
 				//2.3 - else callback to node first in list
-				else{															
-					printf("\n(((Back to bef node)))\n");		
+				else{																
 					offset_clus=((head->entr_sh.first_clus_low-2)+bef_data_sector)*Boot->byte_per_sec+32*2;
 					
 					entr_sh_sub=readEntrInClus(offset_clus,&cnt_entr_sh_sub,head->entr_sh.first_clus_low);		
@@ -185,28 +161,36 @@ void checkFile(Entry_Short *entr_sh, int cnt_entr_sh){			//DATA//
 	}//close while
 }
 
-void readDataNode(){	
-	//1. BOOT		
-	printf("--------- BOOT ---------\n");								//DATA//
-	callBootSector();		
-	printf("------------------------\n");	
-	
-	//2. Init Link List
-	initList();
-	
-	//3. Find Root offset
-	main_offset(); 
-	//printf("#root offset: %x\n",Root_offset); 
-	
+void readDataNode(){											/*DATA*/
+	//3. Find Root offset and Root's Sectors
 	int cnt_entr_sh;
+	/*root directory location: 0x2600*/
+	//Root_offset = offset_Root(Boot->num_FAT, Boot->sec_per_FAT, Boot->resv_sec_cnt);
+	
 	//4. Print Root main entries
 	Entry_Short *entr_sh = readEntryShort(Root_offset, &cnt_entr_sh);//cnt_entr_sh=7
 	displayEntryShort(&entr_sh[0], cnt_entr_sh, 0); 
-	
 	//5. Go to Sub-Folders
 	checkFile(&entr_sh[0], cnt_entr_sh);	
 }
 
-/*--------------------------- HAL - END ---------------------------*/
+/*--------------------------- MAIN - END -----------------------------*/
+
+
+/*********************************************************************/
+void callData(){
+	//1. BOOT									
+	callBootSector();			
+	//2. Init Link List
+	initList();
+	if(checkFAT()!=FAT32){
+		
+		main_offset();
+	
+		readDataNode();	
+	}else{
+		
+	}	
+}
 
 #endif
