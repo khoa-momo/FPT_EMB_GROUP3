@@ -116,6 +116,12 @@ typedef struct Boot_Sector{
 	char sec_per_clus; 		//0x0d (2B)   
 }Boot_Sector;
 
+typedef enum FAT{
+	FAT12=1,
+	FAT16=2,
+	FAT32=3
+}FAT;
+
 //entry main in root directory
 typedef struct Entr_Main_Root{
 	//data

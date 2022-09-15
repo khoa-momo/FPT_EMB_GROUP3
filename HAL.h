@@ -3,12 +3,6 @@
 
 #include"FAT_system.h"
 
-typedef enum FAT{
-	FAT12=1,
-	FAT16=2,
-	FAT32=3
-}FAT;
-
 void callBootSector();
 FAT checkFAT();
 
