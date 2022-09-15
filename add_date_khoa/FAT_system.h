@@ -96,8 +96,8 @@
 /********************************************************************/
 
 /************* Shift To Offset **************/
-#define Shift_Offset(x)		fseek(fp,x,0)	
-
+#define Shift_Offset(x)				fseek(fp,x,0)	
+#define offset_Root(SF,NF,BF)       (((SF*NF)+BF)*0x200)
 /***************** Struct ****************/
 typedef enum bool{
 	true=1, false=0
@@ -154,8 +154,8 @@ void callBootSector();
 
 void getShortEntry(Entry_Short *entr_sh,int offset);
 void countEntryShort(int offset,int *cnt_entr_sh);
-Entry_Short * readEntryShort(int offset,int *cnt_entr_sh);
-Entry_Short * readEntrInClus(int offset, int *cnt_entr_sh,int locat_clus);
+Entry_Short *readEntryShort(int offset,int *cnt_entr_sh);
+Entry_Short *readEntrInClus(int offset, int *cnt_entr_sh,int locat_clus);
 void displayEntryShort(Entry_Short *entr_sh,int cnt_entr_sh,int);
 
 void readDataNode();
@@ -165,6 +165,9 @@ void checkFile(Entry_Short *entr_sh,int cnt_entr_sh);
 
 void readDate(int raw_date);
 void readTime(int raw_time);
+
+void main_offset();
+
 /******************************** Declared ********************************/
 
 /********************************* LINK LIST **********************************/
@@ -180,11 +183,15 @@ void addNodeToList(Node*node);
 void removeNode();
 void createNode(Entry_Short *entr_sh);
 void printList();
+void printLinkedList(Node *head);
 /********************************* LINK LIST **********************************/
 
 /***************global_variable***************/ 
 FILE *fp; //FILE pointer
 Boot_Sector *Boot;
 Node *head; 
+
+int Root_offset;
+int bef_data_sector;
 /***************global_variable***************/ 
 #endif
