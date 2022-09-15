@@ -352,10 +352,6 @@ void readTime(int raw_time){
 	printf("Time(hh:mm:ss): %d:%d:%d   ",hr,min,sec);
 }
 
-int offset_clus(int first_clus_low){
-	return ((first_clus_low-2)+0x21)*0x200+32*2;
-}
-
 void main_offset(){
 	//Root_Sectors = (SF*NF)+BF;/19
 	//Boot->num_FAT, Boot->sec_per_FAT, Boot->resv_sec_cnt

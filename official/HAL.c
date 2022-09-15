@@ -194,21 +194,11 @@ void readDataNode(){
 	//2. Init Link List
 	initList();
 	
-	//3. Find Root offset and Root's Sectors
+	//3. Find Root offset
+	main_offset(); 
+	//printf("#root offset: %x\n",Root_offset); 
+	
 	int cnt_entr_sh;
-	
-	/*root directory location: 0x2600*/
-	//Root_offset = offset_Root(Boot->num_FAT, Boot->sec_per_FAT, Boot->resv_sec_cnt);
-	
-	main_offset();
-	//offset(Boot->num_FAT, Boot->sec_per_FAT, Boot->resv_sec_cnt);
-	printf("#root offset: %x\n",Root_offset); 
-	
-	
-	/*Number of clusters/sectors/block in root*/
-//	int cnt_clus_root = Boot->root_entr_cnt*32/512;
-//	printf("cnt_clus_root: %d",cnt_clus_root); 
-	
 	//4. Print Root main entries
 	Entry_Short *entr_sh = readEntryShort(Root_offset, &cnt_entr_sh);//cnt_entr_sh=7
 	displayEntryShort(&entr_sh[0], cnt_entr_sh, 0); 
